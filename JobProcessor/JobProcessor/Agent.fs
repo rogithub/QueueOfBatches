@@ -3,6 +3,8 @@ module Agent =
 
     open Message
     open System
+    open System.Reflection
+    open System.Linq
 
     let Queue = MailboxProcessor<IMessage>.Start(fun inbox ->
         let rec loop n =
@@ -10,7 +12,10 @@ module Agent =
                 try
                     let! msg = inbox.Receive();
 
-                    msg.OnExecute(msg.Param);
+                    let t = msg.Assembly.GetType(msg.FullyQualifiedName)
+                    let methodInfo = t.GetMethod(msg.MethodToRun, msg.MethodParametersTypes);
+                    let o = Activator.CreateInstance(t, msg.ConstructorParameters);
+                    let r = methodInfo.Invoke(o, msg.MethodParameters);
 
                     do! loop (n + 1)
 
