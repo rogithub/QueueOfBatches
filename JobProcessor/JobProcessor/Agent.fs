@@ -4,7 +4,6 @@ module Agent =
     open Message
     open System
     open System.Reflection
-    open System.Linq
 
     let Queue = MailboxProcessor<IMessage>.Start(fun inbox ->
         let rec loop n =
