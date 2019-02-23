@@ -5,14 +5,14 @@ module Agent =
     open System
     open System.Reflection
 
-    let Queue = MailboxProcessor<IMessage>.Start(fun inbox ->
+    let AssemblyRunner = MailboxProcessor<IAssemblyData>.Start(fun inbox ->
         let rec loop n =
             async {
                 try
                     let! msg = inbox.Receive();
 
                     let t = msg.Assembly.GetType(msg.FullyQualifiedName)
-                    let methodInfo = t.GetMethod(msg.MethodToRun, msg.MethodParametersTypes);
+                    let methodInfo = t.GetMethod(msg.MethodToRun, BindingFlags.Public ||| BindingFlags.Instance, null, CallingConventions.Any, msg.MethodParametersTypes, null);
                     let o = Activator.CreateInstance(t, msg.ConstructorParameters);
                     let r = methodInfo.Invoke(o, msg.MethodParameters);
 
@@ -21,6 +21,9 @@ module Agent =
                 with
                 | :? TimeoutException ->
                     printfn "The mailbox processor timed out."
+                    do! loop (n + 1)
+                | ex ->
+                    printfn "Error: %s." ex.Message
                     do! loop (n + 1)
             }
         loop (0))
