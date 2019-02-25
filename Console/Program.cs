@@ -28,7 +28,8 @@ namespace Console
 
 			Action<FinishResult> action = (result) => System.Console.Write(result.ToString());
 			System.Console.WriteLine("Creating 1 files...");
-			Agent.Process(CreateFile(), FuncConvert.ToFSharpFunc(action));
+			// -1 means infinite
+			Agent.Process(-1, CreateFile(), FuncConvert.ToFSharpFunc(action));
 			System.Console.ReadLine();
 		}
 	}

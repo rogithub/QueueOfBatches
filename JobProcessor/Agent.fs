@@ -31,8 +31,8 @@ module Agent =
             }
         loop (0))
 
-    let Process data callback =
-        let messageAsync = AssemblyRunner.PostAndAsyncReply(fun replyChannel -> data, replyChannel);
+    let Process timeout data callback =
+        let messageAsync = AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), timeout);
         Async.StartWithContinuations(messageAsync,
             (fun reply -> callback reply),
             (fun _ -> ()),
