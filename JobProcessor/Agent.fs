@@ -18,7 +18,7 @@ module Agent =
                     let methodInfo = t.GetMethod(msg.MethodToRun, BindingFlags.Public ||| BindingFlags.Instance, null, CallingConventions.Any, msg.MethodParametersTypes, null);
                     let o = Activator.CreateInstance(t, msg.ConstructorParameters);
                     let r = methodInfo.Invoke(o, msg.MethodParameters);
-                    channel.Reply(new FinishResult(msg.MessageId, FinishStatus.RunToSucces, r, null));
+                    channel.Reply(new FinishResult(msg.MessageId, FinishStatus.Succes, r, null));
                     do! loop (n + 1)
 
                 with

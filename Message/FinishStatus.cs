@@ -8,8 +8,8 @@ namespace Message
 {
 	public enum FinishStatus
 	{
-		NotRun,
-		RunToSucces,
+		New = 0,
+		Succes,
 		Error,
 		TimedOut
 	}

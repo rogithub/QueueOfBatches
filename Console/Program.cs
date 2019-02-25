@@ -3,33 +3,49 @@ using JobProcessor;
 using Message;
 using Microsoft.FSharp.Core;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Console
 {
 	class Program
 	{
-		public static IAssemblyData CreateFile()
+		public static IEnumerable<IAssemblyData> CreateFile(int count)
 		{
-
-			IAssemblyData m = new AssemblyData();
-			m.Assembly = Assembly.GetAssembly(typeof(FileCreator));
-			m.ConstructorParameters = new object[] { @"C:\Users\43918\Desktop\test" };
-			m.FullyQualifiedName = "Examples.FileCreator";
-			m.MessageId = Guid.NewGuid();
-			m.MethodParameters = new object[] { m.MessageId };
-			m.MethodParametersTypes = new Type[] { typeof(Guid) };
-			m.MethodToRun = "CreateFile";
-			return m;
+			for (int i = 0; i < count; i++)
+			{
+				Guid id = Guid.NewGuid();
+				yield return new AssemblyData()
+				{
+					Assembly = Assembly.GetAssembly(typeof(FileCreator)),
+					ConstructorParameters = new object[] { @"C:\Users\43918\Desktop\test" },
+					FullyQualifiedName = "Examples.FileCreator",
+					MessageId = id,
+					MethodParameters = new object[] { id },
+					MethodParametersTypes = new Type[] { typeof(Guid) },
+					MethodToRun = "CreateFile"
+				};
+			}
 		}
 
 		static void Main(string[] args)
 		{
+			int count = 10;
+			DataBase.DbFeedProvider.Save(CreateFile(count).ToArray());
+			IEnumerable<IAssemblyData> list = DataBase.DbFeedProvider.GetNextBatch();
+			Action<FinishResult> action = (result) => DataBase.DbFeedProvider.Update(result);
 
-			Action<FinishResult> action = (result) => System.Console.Write(result.ToString());
-			System.Console.WriteLine("Creating 1 files...");
-			// -1 means infinite
-			Agent.Process(-1, CreateFile(), FuncConvert.ToFSharpFunc(action));
+			foreach (IAssemblyData data in list)
+			{
+				// -1 means infinite
+				Agent.Process(-1, data, FuncConvert.ToFSharpFunc(action));
+			}
+
+
+
+			System.Console.WriteLine("Creating {0} files...", count);
+
 			System.Console.ReadLine();
 		}
 	}
