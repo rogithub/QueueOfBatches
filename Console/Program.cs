@@ -8,10 +8,10 @@ namespace Console
 {
 	class Program
 	{
-		public static IAssemblyData CreateFile()
+		public static AssemblyData CreateFile()
 		{
 
-			IAssemblyData m = new AssemblyData();
+			AssemblyData m = new AssemblyData();
 			m.Assembly = Assembly.GetAssembly(typeof(FileCreator));
 			m.ConstructorParameters = new object[] { @"C:\Users\43918\Desktop\test" };
 			m.FullyQualifiedName = "Examples.FileCreator";
@@ -24,13 +24,13 @@ namespace Console
 
 		static void Main(string[] args)
 		{
-			System.Console.WriteLine("Creating 100 files...");
+			System.Console.WriteLine("Creating 1 files...");
 
-			for (int i = 0; i < 100; i++)
-			{
-				IAssemblyData data = CreateFile();
-				Agent.AssemblyRunner.Post(data);
-			}
+			byte[] serialized = Serializer.Serialize(CreateFile());
+			System.Console.Write(serialized);
+
+			AssemblyData data = Serializer.Deserialize<AssemblyData>(serialized);
+			Agent.AssemblyRunner.Post(data);
 
 
 			System.Console.ReadLine();

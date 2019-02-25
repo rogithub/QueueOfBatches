@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace Message
 {
+	[Serializable]
 	public class AssemblyData : IAssemblyData
 	{
 		public Guid MessageId { get; set; }
