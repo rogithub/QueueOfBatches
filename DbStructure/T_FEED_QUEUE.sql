@@ -1,7 +1,7 @@
 USE [mylocaldb]
 GO
 
-/****** Object:  Table [dbo].[T_FEED_QUEUE]    Script Date: 2/25/2019 5:00:11 PM ******/
+/****** Object:  Table [dbo].[T_FEED_QUEUE]    Script Date: 2/25/2019 5:15:07 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,15 +12,16 @@ CREATE TABLE [dbo].[T_FEED_QUEUE](
 	[F_GUID] [uniqueidentifier] NOT NULL,
 	[F_DATE_CREATED] [datetime] NOT NULL,
 	[F_DATE_RUN] [datetime] NULL,
-	[F_FINISH_STATUS] [int] NOT NULL,	
+	[F_FINISH_STATUS] [int] NOT NULL,
 	[F_EXECUTED] [bit] NOT NULL,
-	[F_METHOD_NAME] [varchar](500) NOT NULL,	
-	[F_FULLY_QUALIFIED_CLASS_NAME] [varchar](500) NOT NULL,	
+	[F_METHOD_NAME] [varchar](500) NOT NULL,
+	[F_FULLY_QUALIFIED_CLASS_NAME] [varchar](500) NOT NULL,
 	[F_CONSTRUCTOR_PARAMETERS] [xml] NOT NULL,
-	[F_METHOD_PARAMETERS] [xml] NOT NULL,	
+	[F_METHOD_PARAMETERS] [xml] NOT NULL,
 	[F_RESULT] [xml] NULL,
+	[F_EXCEPTION] [varchar](max) NULL,
 	[F_ASSEMBLY] [varbinary](max) NOT NULL,
-	[F_METHOD_PARAM_TYPES] [varbinary](max) NOT NULL,	
+	[F_METHOD_PARAM_TYPES] [varbinary](max) NOT NULL,
  CONSTRAINT [PK_T_FEED_QUEUE] PRIMARY KEY CLUSTERED 
 (
 	[F_GUID] ASC

@@ -75,11 +75,12 @@ namespace DataBase
 		public static int Update(FinishResult result)
 		{
 			List<SqlParameter> allParams = new List<SqlParameter>();
-			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_RUN=GETDATE(), F_FINISH_STATUS=@finishStatus, F_RESULT=@result, F_EXECUTED=1 WHERE F_GUID=@id";
+			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_RUN=GETDATE(), F_FINISH_STATUS=@finishStatus, F_RESULT=@result, F_EXECUTED=1, F_EXCEPTION=@exception WHERE F_GUID=@id";
 			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
 
 			cmd.Parameters.Add(Db.GetParam("@finishStatus", SqlDbType.Int, result.Status));
 			cmd.Parameters.Add(Db.GetParam("@result", SqlDbType.Xml, Serializer.XmlSerialize(result.Result)));
+			cmd.Parameters.Add(Db.GetParam("@exception", SqlDbType.VarChar, result.Exception == null ? string.Empty : result.Exception.ToString()));
 			cmd.Parameters.Add(Db.GetParam("@id", SqlDbType.UniqueIdentifier, result.MessageId));
 
 			cmd.Connection = Db.GetConnection();
