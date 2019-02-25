@@ -51,16 +51,16 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Examples\Examples\Examples.csproj">
-      <Project>{1fc1dfe7-7e5a-496a-93c1-71227ec82062}</Project>
+    <ProjectReference Include="..\Examples\Examples.csproj">
+      <Project>{e0d91d50-743e-4b66-8dbf-7f9f8800e525}</Project>
       <Name>Examples</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\JobProcessor\JobProcessor\JobProcessor.fsproj">
-      <Project>{0e5057f6-baeb-445d-adef-51b74e22d02a}</Project>
+    <ProjectReference Include="..\JobProcessor\JobProcessor.fsproj">
+      <Project>{84d042ec-9c22-47f2-8b92-3ac419832cc3}</Project>
       <Name>JobProcessor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Message\Message\Message.csproj">
-      <Project>{3cff5006-5586-42bc-8f03-23e4b6ccf470}</Project>
+    <ProjectReference Include="..\Message\Message.csproj">
+      <Project>{b7de7d35-ce45-4272-ab1a-1af94e238f2e}</Project>
       <Name>Message</Name>
     </ProjectReference>
   </ItemGroup>

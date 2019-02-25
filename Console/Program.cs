@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Examples;
 using JobProcessor;
 using Message;
@@ -29,13 +25,15 @@ namespace Console
 
 		static void Main(string[] args)
 		{
+			System.Console.WriteLine("Creating 100 files...");
+
 			for (int i = 0; i < 100; i++)
 			{
 				IAssemblyData data = CreateFile();
 				Agent.AssemblyRunner.Post(data);
 			}
 
-			System.Console.WriteLine("Creating 100 files...");
+
 			System.Console.ReadLine();
 		}
 	}
