@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C2594A1A-7338-44F5-BFC2-817BAC8F4D66}</ProjectGuid>
+    <ProjectGuid>{0507B71D-4ABC-4A3A-B1A4-1D1295CB8A0F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Console</RootNamespace>
     <AssemblyName>Console</AssemblyName>
@@ -52,15 +52,15 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Examples\Examples.csproj">
-      <Project>{e0d91d50-743e-4b66-8dbf-7f9f8800e525}</Project>
+      <Project>{67fdf32d-8aa6-41a2-a631-242468289b93}</Project>
       <Name>Examples</Name>
     </ProjectReference>
     <ProjectReference Include="..\JobProcessor\JobProcessor.fsproj">
-      <Project>{84d042ec-9c22-47f2-8b92-3ac419832cc3}</Project>
+      <Project>{3a10c541-2cb1-4f10-b21a-ad7a9575b4ea}</Project>
       <Name>JobProcessor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Message\Message.csproj">
-      <Project>{b7de7d35-ce45-4272-ab1a-1af94e238f2e}</Project>
+      <Project>{f437e047-94a7-4150-a63b-cbf3bc708eef}</Project>
       <Name>Message</Name>
     </ProjectReference>
   </ItemGroup>

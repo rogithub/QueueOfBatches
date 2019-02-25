@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 
-
 namespace Examples
 {
 	public class FileCreator

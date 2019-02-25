@@ -1,9 +1,8 @@
-﻿using System;
-using System.Reflection;
-using Examples;
+﻿using Examples;
 using JobProcessor;
 using Message;
-
+using System;
+using System.Reflection;
 
 namespace Console
 {
