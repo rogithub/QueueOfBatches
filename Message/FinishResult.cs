@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace Message
 {
-	public enum FinishStatus
-	{
-		NotRun,
-		RunToSucces,
-		Error,
-		TimedOut
-	}
-
 	public class FinishResult
 	{
+		public FinishResult() { }
+		public FinishResult(Guid id, FinishStatus status, object result, Exception ex)
+		{
+			this.MessageId = id;
+			this.Status = status;
+			this.Result = result;
+			this.Exception = ex;
+		}
 		public Guid MessageId { get; set; }
 		public FinishStatus Status { get; set; }
 		public object Result { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Examples;
 using JobProcessor;
 using Message;
+using Microsoft.FSharp.Core;
 using System;
 using System.Reflection;
 
@@ -8,10 +9,10 @@ namespace Console
 {
 	class Program
 	{
-		public static AssemblyData CreateFile()
+		public static IAssemblyData CreateFile()
 		{
 
-			AssemblyData m = new AssemblyData();
+			IAssemblyData m = new AssemblyData();
 			m.Assembly = Assembly.GetAssembly(typeof(FileCreator));
 			m.ConstructorParameters = new object[] { @"C:\Users\43918\Desktop\test" };
 			m.FullyQualifiedName = "Examples.FileCreator";
@@ -24,8 +25,10 @@ namespace Console
 
 		static void Main(string[] args)
 		{
+
+			Action<FinishResult> action = (result) => System.Console.Write(result.ToString());
 			System.Console.WriteLine("Creating 1 files...");
-			//Agent.AssemblyRunner.Post(data);
+			Agent.Process(CreateFile(), FuncConvert.ToFSharpFunc(action));
 			System.Console.ReadLine();
 		}
 	}

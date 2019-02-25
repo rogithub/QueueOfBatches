@@ -5,26 +5,35 @@ module Agent =
     open System
     open System.Reflection
 
-    let AssemblyRunner = MailboxProcessor<IAssemblyData>.Start(fun inbox ->
+    type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
+
+    let AssemblyRunner = MailboxProcessor<Message>.Start(fun inbox ->
         let rec loop n =
             async {
+                let! (msg, channel) = inbox.Receive();
+
                 try
-                    let! msg = inbox.Receive();
 
                     let t = msg.Assembly.GetType(msg.FullyQualifiedName)
                     let methodInfo = t.GetMethod(msg.MethodToRun, BindingFlags.Public ||| BindingFlags.Instance, null, CallingConventions.Any, msg.MethodParametersTypes, null);
                     let o = Activator.CreateInstance(t, msg.ConstructorParameters);
                     let r = methodInfo.Invoke(o, msg.MethodParameters);
-
+                    channel.Reply(new FinishResult(msg.MessageId, FinishStatus.RunToSucces, r, null));
                     do! loop (n + 1)
 
                 with
                 | :? TimeoutException ->
-                    printfn "The mailbox processor timed out."
+                    channel.Reply(new FinishResult(msg.MessageId, FinishStatus.TimedOut, null, null));
                     do! loop (n + 1)
                 | ex ->
-                    printfn "Error: %s." ex.Message
+                    channel.Reply(new FinishResult(msg.MessageId, FinishStatus.Error, null, ex));
                     do! loop (n + 1)
             }
         loop (0))
 
+    let Process data callback =
+        let messageAsync = AssemblyRunner.PostAndAsyncReply(fun replyChannel -> data, replyChannel);
+        Async.StartWithContinuations(messageAsync,
+            (fun reply -> callback reply),
+            (fun _ -> ()),
+            (fun _ -> ()))
