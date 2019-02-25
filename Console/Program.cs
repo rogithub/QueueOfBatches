@@ -25,14 +25,7 @@ namespace Console
 		static void Main(string[] args)
 		{
 			System.Console.WriteLine("Creating 1 files...");
-
-			byte[] serialized = Serializer.Serialize(CreateFile());
-			System.Console.Write(serialized);
-
-			AssemblyData data = Serializer.Deserialize<AssemblyData>(serialized);
-			Agent.AssemblyRunner.Post(data);
-
-
+			//Agent.AssemblyRunner.Post(data);
 			System.Console.ReadLine();
 		}
 	}
