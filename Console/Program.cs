@@ -1,7 +1,6 @@
 ﻿using Examples;
 using JobProcessor;
 using Message;
-using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +31,7 @@ namespace Console
 
 		static void Main(string[] args)
 		{
-			int count = 10000;
+			int count = 10;
 			System.Console.WriteLine("Creating {0} files...", count);
 
 			Agent.Start();

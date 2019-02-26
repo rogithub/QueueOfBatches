@@ -11,6 +11,6 @@ namespace Message
 		New = 0,
 		Succes,
 		Error,
-		TimedOut
+		Canceled
 	}
 }

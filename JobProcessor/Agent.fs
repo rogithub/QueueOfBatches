@@ -22,9 +22,6 @@ module Agent =
                     do! loop (n + 1)
 
                 with
-                | :? TimeoutException ->
-                    channel.Reply(new FinishResult(msg.MessageId, FinishStatus.TimedOut, null, null));
-                    do! loop (n + 1)
                 | ex ->
                     channel.Reply(new FinishResult(msg.MessageId, FinishStatus.Error, null, ex));
                     do! loop (n + 1)
@@ -34,9 +31,9 @@ module Agent =
     let private Process data callback =
         let messageAsync = AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), data.TimeoutMilliseconds);
         Async.StartWithContinuations(messageAsync,
-            (fun reply -> callback reply),
-            (fun _ -> ()),
-            (fun _ -> ()))
+            (fun  good -> callback good),
+            (fun error -> callback (new FinishResult(data.MessageId, FinishStatus.Error, null, error))),
+            (fun cancl -> callback (new FinishResult(data.MessageId, FinishStatus.Canceled, null, cancl))))
 
 
     let private FeedSource = MailboxProcessor<AsyncReplyChannel<_>>.Start(fun inbox ->
@@ -70,7 +67,7 @@ module Agent =
     let rec Start () =
         let messageAsync = FeedSource.PostAndAsyncReply((fun replyChannel -> replyChannel));
         Async.StartWithContinuations(messageAsync,
-            (fun reply -> Start()),
+            (fun _ -> Start()),
             (fun _ -> ()),
             (fun _ -> ()))
 
