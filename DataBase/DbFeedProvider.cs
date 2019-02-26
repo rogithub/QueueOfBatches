@@ -11,11 +11,9 @@ namespace DataBase
 {
 	public static class DbFeedProvider
 	{
-		public static IEnumerable<IAssemblyData> GetNextBatch(int batchSize, Guid[] processing)
+		public static IEnumerable<IAssemblyData> GetNextBatch(int batchSize)
 		{
-			string inlist = string.Join(",", from p in processing select string.Format("'{0}'", p.ToString()));
-			string andPart = string.Format(" AND F_GUID NOT IN ({0})", inlist);
-			string text = string.Format("SELECT TOP {0} * FROM T_FEED_QUEUE WHERE F_EXECUTED=@executed {1} ORDER BY F_DATE_CREATED", batchSize, processing.Length > 0 ? andPart : string.Empty);
+			string text = string.Format("SELECT TOP {0} * FROM T_FEED_QUEUE WHERE F_DATE_STARTED IS NULL ORDER BY F_DATE_CREATED", batchSize);
 
 			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
 			cmd.Parameters.Add(Db.GetParam("@executed", SqlDbType.Bit, false));
@@ -47,9 +45,9 @@ namespace DataBase
 			StringBuilder sb = new StringBuilder();
 			List<SqlParameter> allParams = new List<SqlParameter>();
 			string text = @"INSERT INTO T_FEED_QUEUE 
-				(F_GUID, F_FINISH_STATUS, F_DATE_CREATED, F_EXECUTED, F_TIMEOUT_MILLISECONDS, F_ASSEMBLY, F_METHOD_PARAM_TYPES, F_CONSTRUCTOR_PARAMETERS, F_METHOD_PARAMETERS, F_FULLY_QUALIFIED_CLASS_NAME, F_METHOD_NAME) 
+				(F_GUID, F_FINISH_STATUS, F_DATE_CREATED, F_TIMEOUT_MILLISECONDS, F_ASSEMBLY, F_METHOD_PARAM_TYPES, F_CONSTRUCTOR_PARAMETERS, F_METHOD_PARAMETERS, F_FULLY_QUALIFIED_CLASS_NAME, F_METHOD_NAME) 
 				VALUES 
-				(@guid{0},0,GETDATE(),0,@timeoutms{0},@assembly{0},@paramTypes{0},@consParams{0},@methodParams{0},@fullyQName{0},@method{0});";
+				(@guid{0},0,GETDATE(),@timeoutms{0},@assembly{0},@paramTypes{0},@consParams{0},@methodParams{0},@fullyQName{0},@method{0});";
 			for (int i = 0; i < rows.Length; i++)
 			{
 				sb.AppendFormat(text, i);
@@ -69,10 +67,23 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
+		public static int Start(Guid[] rows)
+		{
+			if (rows.Length == 0) return 0;
+
+			string inlist = string.Join(",", from p in rows select string.Format("'{0}'", p.ToString()));
+			string inPart = string.Format(" ({0}) ", inlist);
+
+			string text = string.Format(@"UPDATE T_FEED_QUEUE SET F_DATE_STARTED=GETDATE() WHERE F_GUID in {0}", inPart);
+			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
+			cmd.Connection = Db.GetConnection();
+			return Db.ExecuteNonQuery(cmd);
+		}
+
 		public static int Update(FinishResult result)
 		{
 			List<SqlParameter> allParams = new List<SqlParameter>();
-			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_RUN=GETDATE(), F_FINISH_STATUS=@finishStatus, F_RESULT=@result, F_EXECUTED=1, F_EXCEPTION=@exception WHERE F_GUID=@id";
+			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_COMPLETED=GETDATE(), F_FINISH_STATUS=@finishStatus, F_RESULT=@result, F_EXCEPTION=@exception WHERE F_GUID=@id";
 			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
 
 			cmd.Parameters.Add(Db.GetParam("@finishStatus", SqlDbType.Int, result.Status));

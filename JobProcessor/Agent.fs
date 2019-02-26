@@ -4,10 +4,8 @@ module Agent =
     open Message
     open System
     open System.Reflection
-    open System.Drawing
 
     type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
-    type NextBatchInfo = { running: Guid[]; size: int; round: int }
     type Starter = int * AsyncReplyChannel<int>
 
     let private AssemblyRunner = MailboxProcessor<Message>.Start(fun inbox ->
@@ -41,25 +39,33 @@ module Agent =
             (fun _ -> ()),
             (fun _ -> ()))
 
+
     let private FeedSource = MailboxProcessor<Starter>.Start(fun inbox ->
-        let rec loop info =
+        let rec loop n =
             async {
                 let! (timeToSleep, channel) = inbox.Receive();
 
-                let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(info.size, info.running);
+                let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize);
+
                 let ids = list |> Array.map (fun it -> it.MessageId)
 
                 if (list.Length = 0) then
                     do! Async.Sleep(timeToSleep)
-                    printfn "round %d at %s" info.round (DateTime.Now.ToLongTimeString())
+                    printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                 else
-                    printfn "round %d at %s processed %d" info.round (DateTime.Now.ToLongTimeString()) list.Length
-                    [for data in list do Process data (fun result -> DataBase.DbFeedProvider.Update(result) |> ignore)] |> ignore
+                    printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
+
+                [for data in list do Process data (fun result ->
+                        DataBase.DbFeedProvider.Update(result) |> ignore
+                    )
+                |> ignore] |> ignore
+
+                DataBase.DbFeedProvider.Start(ids) |> ignore;
 
                 channel.Reply(timeToSleep)
-                do! loop ({ info with running = ids; size = (DataBase.AppSettings.BatchSize - AssemblyRunner.CurrentQueueLength); round = info.round + 1 });
+                do! loop (n + 1);
             }
-        loop ({ running = [||]; size = DataBase.AppSettings.BatchSize; round = 0 }))
+        loop (0))
 
 
     let rec Start timeToSleep =
@@ -70,5 +76,6 @@ module Agent =
             (fun _ -> ()))
 
     let AddJobs jobs =
-        let count = DataBase.DbFeedProvider.Save(jobs);
-        count
+        let chunks = jobs |> Array.chunkBySize DataBase.AppSettings.BatchSize
+        [for chunk in chunks do DataBase.DbFeedProvider.Save(chunk) |> ignore ] |> ignore
+        chunks.Length

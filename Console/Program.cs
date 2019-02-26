@@ -32,11 +32,12 @@ namespace Console
 
 		static void Main(string[] args)
 		{
-			int count = 10;
+			int count = 10000;
 			System.Console.WriteLine("Creating {0} files...", count);
 
-			Agent.AddJobs(CreateFile(count).ToArray());
 			Agent.Start(1000);
+			Agent.AddJobs(CreateFile(count).ToArray());
+
 			System.Console.ReadLine();
 		}
 	}

@@ -26,6 +26,10 @@ namespace Examples
 					sw.WriteLine("Created from thread id: {0}", Thread.CurrentThread.ManagedThreadId);
 				}
 			}
+			else
+			{
+				throw new Exception(string.Format("duplicated file found {0}", fileName));
+			}
 		}
 	}
 }
