@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 
 namespace DataBase
 {
-	public static class Db
+	internal static class Db
 	{
 		public static SqlConnection GetConnection()
 		{

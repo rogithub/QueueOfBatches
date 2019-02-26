@@ -1,11 +1,10 @@
-﻿using Examples;
-using JobProcessor;
+﻿using DataBase;
+using Examples;
 using Message;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 
 namespace Console
 {
@@ -34,16 +33,8 @@ namespace Console
 		{
 			int count = 100;
 			System.Console.WriteLine("Creating {0} files...", count);
-
-			var c = new CancellationTokenSource();
-			var t = c.Token;
-			var service = new Agent.Service(t);
-			service.Start();
-			service.AddJobs(CreateFile(count).ToArray());
-
-			System.Console.ReadKey();
-			c.Cancel();
-
+			DbFeedProvider.Save(CreateFile(count).ToArray());
+			System.Console.WriteLine("Done.", count);
 			System.Console.ReadLine();
 		}
 	}
