@@ -4,7 +4,6 @@ module Agent =
     open Message
     open System
     open System.Reflection
-    open System
 
     type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
 
@@ -35,8 +34,8 @@ module Agent =
             }
         loop (0))
 
-    let private Process timeout data callback =
-        let messageAsync = AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), timeout);
+    let private Process data callback =
+        let messageAsync = AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), data.TimeoutMilliseconds);
         Async.StartWithContinuations(messageAsync,
             (fun reply -> callback reply),
             (fun _ -> ()),
@@ -54,7 +53,7 @@ module Agent =
                     printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                 else
                     printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
-                    [for data in list do Process -1 data (fun result -> DataBase.DbFeedProvider.Update(result) |> ignore)] |> ignore
+                    [for data in list do Process data (fun result -> DataBase.DbFeedProvider.Update(result) |> ignore)] |> ignore
 
                 channel.Reply(timeToSleep);
                 do! loop (n + 1);

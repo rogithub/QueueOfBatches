@@ -13,5 +13,6 @@ namespace Message
 		Assembly Assembly { get; set; }
 		string MethodToRun { get; set; }
 		string FullyQualifiedName { get; set; }
+		int TimeoutMilliseconds { get; set; }
 	}
 }

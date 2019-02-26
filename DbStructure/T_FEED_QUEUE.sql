@@ -1,7 +1,7 @@
 USE [mylocaldb]
 GO
 
-/****** Object:  Table [dbo].[T_FEED_QUEUE]    Script Date: 2/25/2019 5:15:07 PM ******/
+/****** Object:  Table [dbo].[T_FEED_QUEUE]    Script Date: 2/25/2019 9:38:51 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -15,6 +15,7 @@ CREATE TABLE [dbo].[T_FEED_QUEUE](
 	[F_FINISH_STATUS] [int] NOT NULL,
 	[F_EXECUTED] [bit] NOT NULL,
 	[F_METHOD_NAME] [varchar](500) NOT NULL,
+	[F_TIMEOUT_MILLISECONDS] [int] NOT NULL, 
 	[F_FULLY_QUALIFIED_CLASS_NAME] [varchar](500) NOT NULL,
 	[F_CONSTRUCTOR_PARAMETERS] [xml] NOT NULL,
 	[F_METHOD_PARAMETERS] [xml] NOT NULL,

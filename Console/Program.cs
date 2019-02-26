@@ -18,6 +18,7 @@ namespace Console
 				Guid id = Guid.NewGuid();
 				yield return new AssemblyData()
 				{
+					TimeoutMilliseconds = -1, //-1 infinite
 					Assembly = Assembly.GetAssembly(typeof(FileCreator)),
 					ConstructorParameters = new object[] { @"C:\Users\43918\Desktop\test" },
 					FullyQualifiedName = "Examples.FileCreator",
@@ -32,13 +33,10 @@ namespace Console
 		static void Main(string[] args)
 		{
 			int count = 10;
-
-			Agent.Start(1000);
-			Agent.AddJobs(CreateFile(count).ToArray());
-
-
 			System.Console.WriteLine("Creating {0} files...", count);
 
+			Agent.AddJobs(CreateFile(count).ToArray());
+			Agent.Start(1000);
 			System.Console.ReadLine();
 		}
 	}
