@@ -4,11 +4,11 @@ module Agent =
     open Message
     open System
     open System.Reflection
+    open System.Drawing
 
     type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
-
+    type NextBatchInfo = { running: Guid[]; size: int; round: int }
     type Starter = int * AsyncReplyChannel<int>
-
 
     let private AssemblyRunner = MailboxProcessor<Message>.Start(fun inbox ->
         let rec loop n =
@@ -42,23 +42,24 @@ module Agent =
             (fun _ -> ()))
 
     let private FeedSource = MailboxProcessor<Starter>.Start(fun inbox ->
-        let rec loop n =
+        let rec loop info =
             async {
                 let! (timeToSleep, channel) = inbox.Receive();
 
-                let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch();
+                let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(info.size, info.running);
+                let ids = list |> Array.map (fun it -> it.MessageId)
 
-                if (list.Length = 0 || AssemblyRunner.CurrentQueueLength > 0) then
+                if (list.Length = 0) then
                     do! Async.Sleep(timeToSleep)
-                    printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
+                    printfn "round %d at %s" info.round (DateTime.Now.ToLongTimeString())
                 else
-                    printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
+                    printfn "round %d at %s processed %d" info.round (DateTime.Now.ToLongTimeString()) list.Length
                     [for data in list do Process data (fun result -> DataBase.DbFeedProvider.Update(result) |> ignore)] |> ignore
 
-                channel.Reply(timeToSleep);
-                do! loop (n + 1);
+                channel.Reply(timeToSleep)
+                do! loop ({ info with running = ids; size = (DataBase.AppSettings.BatchSize - AssemblyRunner.CurrentQueueLength); round = info.round + 1 });
             }
-        loop (0))
+        loop ({ running = [||]; size = DataBase.AppSettings.BatchSize; round = 0 }))
 
 
     let rec Start timeToSleep =

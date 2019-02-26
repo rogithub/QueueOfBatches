@@ -1,7 +1,7 @@
 ﻿using Message;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
+using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
@@ -11,17 +11,12 @@ namespace DataBase
 {
 	public static class DbFeedProvider
 	{
-
-		private static int GetBatchSize()
+		public static IEnumerable<IAssemblyData> GetNextBatch(int batchSize, Guid[] processing)
 		{
-			int size = 0;
-			string batchSizeStr = ConfigurationManager.AppSettings["BATCH_SIZE"];
-			return int.TryParse(batchSizeStr, out size) ? size : 10;
-		}
+			string inlist = string.Join(",", from p in processing select string.Format("'{0}'", p.ToString()));
+			string andPart = string.Format(" AND F_GUID NOT IN ({0})", inlist);
+			string text = string.Format("SELECT TOP {0} * FROM T_FEED_QUEUE WHERE F_EXECUTED=@executed {1} ORDER BY F_DATE_CREATED", batchSize, processing.Length > 0 ? andPart : string.Empty);
 
-		public static IEnumerable<IAssemblyData> GetNextBatch()
-		{
-			string text = string.Format("SELECT TOP {0} * FROM T_FEED_QUEUE WHERE F_EXECUTED=@executed ORDER BY F_DATE_CREATED", GetBatchSize());
 			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
 			cmd.Parameters.Add(Db.GetParam("@executed", SqlDbType.Bit, false));
 			List<AssemblyData> list = new List<AssemblyData>();
