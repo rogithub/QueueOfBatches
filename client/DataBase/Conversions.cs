@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DataBase
 {
-	public static class Conversions
+	internal static class Conversions
 	{
 
 		public static T GetCastValue<T>(object obj)

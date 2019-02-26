@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace DataBase
 {
-	public static class Serializer
+	internal static class Serializer
 	{
 		public static byte[] Serialize(object obj)
 		{

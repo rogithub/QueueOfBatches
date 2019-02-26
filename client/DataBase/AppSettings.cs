@@ -7,7 +7,7 @@ namespace DataBase
 	/// <summary>
 	/// App Settings
 	/// </summary>
-	public static class AppSettings
+	internal static class AppSettings
 	{
 		/// <summary>
 		/// Number of items to process per round.
