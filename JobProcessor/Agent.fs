@@ -69,3 +69,6 @@ module Agent =
             (fun _ -> ()),
             (fun _ -> ()))
 
+    let AddJobs jobs =
+        let count = DataBase.DbFeedProvider.Save(jobs);
+        count

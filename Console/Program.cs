@@ -32,9 +32,9 @@ namespace Console
 		static void Main(string[] args)
 		{
 			int count = 10;
-			DataBase.DbFeedProvider.Save(CreateFile(count).ToArray());
 
 			Agent.Start(1000);
+			Agent.AddJobs(CreateFile(count).ToArray());
 
 
 			System.Console.WriteLine("Creating {0} files...", count);
