@@ -9,9 +9,15 @@ namespace DataBase
 	/// </summary>
 	public static class AppSettings
 	{
+		/// <summary>
+		/// Number of items to process per round.
+		/// </summary>
 		public static int BatchSize => Setting<int>("BATCH_SIZE") == 0 ? 10 : Setting<int>("BATCH_SIZE");
 
-
+		/// <summary>
+		/// Time to waite if there are no records on the database to process.
+		/// </summary>
+		public static int MillisecondsToBeIdle => Setting<int>("MILLISECONDS_TO_BE_IDLE") == 0 ? 1000 : Setting<int>("MILLISECONDS_TO_BE_IDLE");
 
 		private static T Setting<T>(string name)
 		{

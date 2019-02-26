@@ -6,7 +6,6 @@ module Agent =
     open System.Reflection
 
     type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
-    type Starter = int * AsyncReplyChannel<int>
 
     let private AssemblyRunner = MailboxProcessor<Message>.Start(fun inbox ->
         let rec loop n =
@@ -40,38 +39,38 @@ module Agent =
             (fun _ -> ()))
 
 
-    let private FeedSource = MailboxProcessor<Starter>.Start(fun inbox ->
+    let private FeedSource = MailboxProcessor<AsyncReplyChannel<_>>.Start(fun inbox ->
         let rec loop n =
             async {
-                let! (timeToSleep, channel) = inbox.Receive();
+                let! channel = inbox.Receive();
 
                 let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize);
 
                 let ids = list |> Array.map (fun it -> it.MessageId)
 
                 if (list.Length = 0) then
-                    do! Async.Sleep(timeToSleep)
+                    do! Async.Sleep DataBase.AppSettings.MillisecondsToBeIdle
                     printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                 else
                     printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
+
+                DataBase.DbFeedProvider.Start(ids) |> ignore;
 
                 [for data in list do Process data (fun result ->
                         DataBase.DbFeedProvider.Update(result) |> ignore
                     )
                 |> ignore] |> ignore
 
-                DataBase.DbFeedProvider.Start(ids) |> ignore;
-
-                channel.Reply(timeToSleep)
+                channel.Reply()
                 do! loop (n + 1);
             }
         loop (0))
 
 
-    let rec Start timeToSleep =
-        let messageAsync = FeedSource.PostAndAsyncReply((fun replyChannel -> timeToSleep, replyChannel));
+    let rec Start () =
+        let messageAsync = FeedSource.PostAndAsyncReply((fun replyChannel -> replyChannel));
         Async.StartWithContinuations(messageAsync,
-            (fun reply -> Start(reply)),
+            (fun reply -> Start()),
             (fun _ -> ()),
             (fun _ -> ()))
 
