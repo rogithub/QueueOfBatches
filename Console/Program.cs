@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Console
 {
@@ -31,11 +32,16 @@ namespace Console
 
 		static void Main(string[] args)
 		{
-			int count = 10;
+			int count = 10000;
 			System.Console.WriteLine("Creating {0} files...", count);
 
-			Agent.Start();
-			Agent.AddJobs(CreateFile(count).ToArray());
+			var c = new CancellationTokenSource();
+			var t = c.Token;
+			var service = new Agent.Service(t);
+			service.Start();
+			service.AddJobs(CreateFile(count).ToArray());
+
+			c.Cancel();
 
 			System.Console.ReadLine();
 		}
