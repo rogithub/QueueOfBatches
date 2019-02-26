@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataBase\DataBase.csproj" />
     <ProjectReference Include="..\Message\Message.csproj" />
   </ItemGroup>
 

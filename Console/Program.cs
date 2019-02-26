@@ -33,15 +33,8 @@ namespace Console
 		{
 			int count = 10;
 			DataBase.DbFeedProvider.Save(CreateFile(count).ToArray());
-			IEnumerable<IAssemblyData> list = DataBase.DbFeedProvider.GetNextBatch();
-			Action<FinishResult> action = (result) => DataBase.DbFeedProvider.Update(result);
 
-			foreach (IAssemblyData data in list)
-			{
-				// -1 means infinite
-				Agent.Process(-1, data, FuncConvert.ToFSharpFunc(action));
-			}
-
+			Agent.Start(1000);
 
 
 			System.Console.WriteLine("Creating {0} files...", count);

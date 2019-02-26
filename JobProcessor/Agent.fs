@@ -4,10 +4,14 @@ module Agent =
     open Message
     open System
     open System.Reflection
+    open System
 
     type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
 
-    let AssemblyRunner = MailboxProcessor<Message>.Start(fun inbox ->
+    type Starter = int * AsyncReplyChannel<int>
+
+
+    let private AssemblyRunner = MailboxProcessor<Message>.Start(fun inbox ->
         let rec loop n =
             async {
                 let! (msg, channel) = inbox.Receive();
@@ -31,9 +35,37 @@ module Agent =
             }
         loop (0))
 
-    let Process timeout data callback =
+    let private Process timeout data callback =
         let messageAsync = AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), timeout);
         Async.StartWithContinuations(messageAsync,
             (fun reply -> callback reply),
             (fun _ -> ()),
             (fun _ -> ()))
+
+    let private FeedSource = MailboxProcessor<Starter>.Start(fun inbox ->
+        let rec loop n =
+            async {
+                let! (timeToSleep, channel) = inbox.Receive();
+
+                let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch();
+
+                if (list.Length = 0 || AssemblyRunner.CurrentQueueLength > 0) then
+                    do! Async.Sleep(timeToSleep)
+                    printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
+                else
+                    printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
+                    [for data in list do Process -1 data (fun result -> DataBase.DbFeedProvider.Update(result) |> ignore)] |> ignore
+
+                channel.Reply(timeToSleep);
+                do! loop (n + 1);
+            }
+        loop (0))
+
+
+    let rec Start timeToSleep =
+        let messageAsync = FeedSource.PostAndAsyncReply((fun replyChannel -> timeToSleep, replyChannel));
+        Async.StartWithContinuations(messageAsync,
+            (fun reply -> Start(reply)),
+            (fun _ -> ()),
+            (fun _ -> ()))
+
