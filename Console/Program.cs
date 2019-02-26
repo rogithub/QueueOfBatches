@@ -32,7 +32,7 @@ namespace Console
 
 		static void Main(string[] args)
 		{
-			int count = 10000;
+			int count = 100;
 			System.Console.WriteLine("Creating {0} files...", count);
 
 			var c = new CancellationTokenSource();
@@ -41,6 +41,7 @@ namespace Console
 			service.Start();
 			service.AddJobs(CreateFile(count).ToArray());
 
+			System.Console.ReadKey();
 			c.Cancel();
 
 			System.Console.ReadLine();

@@ -17,7 +17,7 @@ namespace Examples
 			string fileName = string.Format("{0}.txt", name.ToString());
 			string path = Path.Combine(this.FolderPath, fileName);
 
-			Thread.Sleep(1000 * 60 * 60);
+			Thread.Sleep(1000 * 60);
 
 			if (!File.Exists(path))
 			{

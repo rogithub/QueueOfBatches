@@ -45,7 +45,7 @@ namespace DataBase
 			StringBuilder sb = new StringBuilder();
 			List<SqlParameter> allParams = new List<SqlParameter>();
 			string text = @"INSERT INTO T_FEED_QUEUE 
-				(F_GUID, F_FINISH_STATUS, F_DATE_CREATED, F_TIMEOUT_MILLISECONDS, F_ASSEMBLY, F_METHOD_PARAM_TYPES, F_CONSTRUCTOR_PARAMETERS, F_METHOD_PARAMETERS, F_FULLY_QUALIFIED_CLASS_NAME, F_METHOD_NAME) 
+				(F_GUID, F_STATUS, F_DATE_CREATED, F_TIMEOUT_MILLISECONDS, F_ASSEMBLY, F_METHOD_PARAM_TYPES, F_CONSTRUCTOR_PARAMETERS, F_METHOD_PARAMETERS, F_FULLY_QUALIFIED_CLASS_NAME, F_METHOD_NAME) 
 				VALUES 
 				(@guid{0},0,GETDATE(),@timeoutms{0},@assembly{0},@paramTypes{0},@consParams{0},@methodParams{0},@fullyQName{0},@method{0});";
 			for (int i = 0; i < rows.Length; i++)
@@ -83,7 +83,7 @@ namespace DataBase
 		public static int Update(FinishResult result)
 		{
 			List<SqlParameter> allParams = new List<SqlParameter>();
-			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_COMPLETED=GETDATE(), F_FINISH_STATUS=@finishStatus, F_RESULT=@result, F_EXCEPTION=@exception WHERE F_GUID=@id";
+			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_COMPLETED=GETDATE(), F_STATUS=@finishStatus, F_RESULT=@result, F_EXCEPTION=@exception WHERE F_GUID=@id";
 			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
 
 			cmd.Parameters.Add(Db.GetParam("@finishStatus", SqlDbType.Int, result.Status));
