@@ -11,12 +11,29 @@ namespace DataBase
 {
 	public static class DbFeedProvider
 	{
-		public static IEnumerable<IAssemblyData> GetNextBatch(int batchSize)
+		/// <summary>
+		/// https://stackoverflow.com/questions/2133393/is-update-with-nested-select-atomic-operation
+		/// </summary>
+		static string SELECT_UPDATE = @"
+		WITH q AS
+        (
+			SELECT  TOP {0} *
+			FROM    T_FEED_QUEUE WITH (ROWLOCK, READPAST)
+			WHERE   F_DATE_STARTED IS NULL
+			ORDER BY
+					F_DATE_CREATED
+        )
+		UPDATE  q
+		SET	F_INSTANCE_ID = @instanceId, F_DATE_STARTED=GETDATE(), F_MACHINE_NAME = @machineName";
+
+		public static IEnumerable<IAssemblyData> GetNextBatch(int batchSize, string machineName, Guid instanceId)
 		{
-			string text = string.Format("SELECT TOP {0} * FROM T_FEED_QUEUE WHERE F_DATE_STARTED IS NULL ORDER BY F_DATE_CREATED", batchSize);
+			string text = string.Format(SELECT_UPDATE, batchSize);
 
 			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
-			cmd.Parameters.Add(Db.GetParam("@executed", SqlDbType.Bit, false));
+			cmd.Parameters.Add(Db.GetParam("@instanceId", SqlDbType.UniqueIdentifier, instanceId));
+			cmd.Parameters.Add(Db.GetParam("@machineName", SqlDbType.VarChar, machineName));
+
 			List<AssemblyData> list = new List<AssemblyData>();
 
 			Db.ExecuteDataReader(cmd, dr =>
@@ -63,19 +80,6 @@ namespace DataBase
 
 			SqlCommand cmd = Db.GetCommand(sb.ToString(), CommandType.Text);
 			cmd.Parameters.AddRange(allParams.ToArray());
-			cmd.Connection = Db.GetConnection();
-			return Db.ExecuteNonQuery(cmd);
-		}
-
-		public static int Start(Guid[] rows)
-		{
-			if (rows.Length == 0) return 0;
-
-			string inlist = string.Join(",", from p in rows select string.Format("'{0}'", p.ToString()));
-			string inPart = string.Format(" ({0}) ", inlist);
-
-			string text = string.Format(@"UPDATE T_FEED_QUEUE SET F_DATE_STARTED=GETDATE() WHERE F_GUID in {0}", inPart);
-			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
 			cmd.Connection = Db.GetConnection();
 			return Db.ExecuteNonQuery(cmd);
 		}

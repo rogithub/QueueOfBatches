@@ -8,6 +8,8 @@ module Agent =
 
     type Service (token) =
         let myToken = token
+        member this.MachineName  = System.Environment.MachineName
+        member this.InstanceId = Guid.NewGuid()
 
         member private this.AssemblyRunner = MailboxProcessor<Message>.Start((fun inbox ->
             let rec loop n =
@@ -43,7 +45,7 @@ module Agent =
                 async {
                     let! channel = inbox.Receive();
 
-                    let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize);
+                    let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize, this.MachineName, this.InstanceId);
 
                     let ids = list |> Array.map (fun it -> it.MessageId)
 
@@ -52,8 +54,6 @@ module Agent =
                         printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                     else
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
-
-                    DataBase.DbFeedProvider.Start(ids) |> ignore;
 
                     [for data in list do this.Process data (fun result ->
                             DataBase.DbFeedProvider.Update(result) |> ignore
