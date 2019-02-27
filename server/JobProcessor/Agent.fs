@@ -45,13 +45,16 @@ module Agent =
                 async {
                     let! channel = inbox.Receive();
 
-                    let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize, this.MachineName, this.InstanceId);
+                    let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize);
 
                     if (list.Length = 0) then
                         do! Async.Sleep DataBase.AppSettings.MillisecondsToBeIdle
                         printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                     else
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
+
+                    let ids = list |> Array.map(fun it -> it.MessageId)
+                    DataBase.DbFeedProvider.Start(ids, this.MachineName, this.InstanceId) |> ignore
 
                     [for data in list do this.Process data (fun result ->
                             DataBase.DbFeedProvider.Update(result) |> ignore
