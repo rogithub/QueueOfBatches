@@ -4,15 +4,12 @@ module Agent =
     open Message
     open System
     open System.Reflection
+    open System.Threading
     type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
+    type InitData = { Token: CancellationToken; Provider: IFeedProvider; PollWait: int; BatchSize: int; InstanceId: Guid; InstanceName: string }
 
-    type Service (token, provider: IFeedProvider, pollWait: int, batchSize: int, instance: Guid) =
-        let Token = token
-        let Provider = provider
-        let PollWait = pollWait
-        let BatchSize= batchSize
-        member this.MachineName  = System.Environment.MachineName
-        member this.InstanceId = instance
+    type Service (initData: InitData) =
+        let InitData = initData
 
         member private this.AssemblyRunner = MailboxProcessor<Message>.Start((fun inbox ->
             let rec loop n =
@@ -33,14 +30,14 @@ module Agent =
                         channel.Reply(new FinishResult(msg.MessageId, FinishStatus.Error, null, ex));
                         do! loop (n + 1)
                 }
-            loop (0)), Token)
+            loop (0)), InitData.Token)
 
         member private this.Process data callback =
             let messageAsync = this.AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), data.TimeoutMilliseconds);
             Async.StartWithContinuations(messageAsync,
                 (fun  good -> callback good),
                 (fun error -> callback (new FinishResult(data.MessageId, FinishStatus.Error, null, error))),
-                (fun _ -> callback (new FinishResult(data.MessageId, FinishStatus.Canceled, null, null))), Token)
+                (fun _ -> callback (new FinishResult(data.MessageId, FinishStatus.Canceled, null, null))), InitData.Token)
 
 
         member private this.FeedSource = MailboxProcessor<AsyncReplyChannel<_>>.Start((fun inbox ->
@@ -48,23 +45,23 @@ module Agent =
                 async {
                     let! channel = inbox.Receive();
 
-                    let list = Seq.toArray <| Provider.GetNextBatch(BatchSize);
+                    let list = Seq.toArray <| InitData.Provider.GetNextBatch(InitData.BatchSize);
                     let ids = list |> Array.map(fun it -> it.MessageId)
-                    Provider.StartBatch(ids, this.MachineName, this.InstanceId) |> ignore
+                    InitData.Provider.StartBatch(ids, InitData.InstanceName, InitData.InstanceId) |> ignore
 
                     match Array.length list with
                     | 0 ->
-                        do! Async.Sleep PollWait
+                        do! Async.Sleep InitData.PollWait
                         printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                     | _ ->
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
 
-                    [for data in list do this.Process data (fun result -> Provider.CompleteJob(result) |> ignore )] |> ignore
+                    [for data in list do this.Process data (fun result -> InitData.Provider.CompleteJob(result) |> ignore )] |> ignore
 
                     channel.Reply()
                     do! loop (n + 1);
                 }
-            loop (0)), Token)
+            loop (0)), InitData.Token)
 
         member this.Start () =
             let messageAsync = this.FeedSource.PostAndAsyncReply((fun replyChannel -> replyChannel));
@@ -74,6 +71,6 @@ module Agent =
                 (fun _ -> ()))
 
         member this.AddJobs jobs =
-            let chunks = jobs |> Array.chunkBySize BatchSize
-            [for chunk in chunks do Provider.AddJobs(chunk) |> ignore ] |> ignore
+            let chunks = jobs |> Array.chunkBySize InitData.BatchSize
+            [for chunk in chunks do InitData.Provider.AddJobs(chunk) |> ignore ] |> ignore
             chunks.Length

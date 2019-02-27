@@ -12,15 +12,13 @@ namespace Console
 
 		static void Main(string[] args)
 		{
-
-			var c = new CancellationTokenSource();
-			var t = c.Token;
 			IFeedProvider provider = new DbFeedProvider();
-			var service = new Agent.Service(t, provider, AppSettings.MillisecondsToBeIdle, AppSettings.BatchSize, Guid.NewGuid());
-
+			var c = new CancellationTokenSource();
+			Agent.InitData data = new Agent.InitData(c.Token, provider, AppSettings.MillisecondsToBeIdle, AppSettings.BatchSize, Guid.NewGuid(), System.Environment.MachineName);
+			var service = new Agent.Service(data);
 
 			service.Start();
-			System.Console.WriteLine("{0} instance {1} Listenning...", service.MachineName, service.InstanceId);
+			System.Console.WriteLine("{0} instance {1} Listenning...", data.InstanceName, data.InstanceId);
 
 			System.Console.ReadKey();
 			c.Cancel();
