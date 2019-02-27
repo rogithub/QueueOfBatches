@@ -15,10 +15,10 @@ module Agent =
         InstanceId: Guid;
         InstanceName: string }
 
-    type Service (initData: InitData<IAssemblyData, FinishResult>) =
+    type Service<'input, 'output> when 'input :> ITaskItem (initData: InitData<'input, 'output>) =
         let InitData = initData
 
-        member private this.TaskRunner = MailboxProcessor<Message<IAssemblyData, FinishResult>>.Start((fun inbox ->
+        member private this.TaskRunner = MailboxProcessor<Message<'input, 'output>>.Start((fun inbox ->
             let rec loop() =
                 async {
                     let! (msg, channel) = inbox.Receive();
