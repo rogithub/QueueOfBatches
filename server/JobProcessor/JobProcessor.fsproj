@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\shared\Message\Message.csproj" />
-    <ProjectReference Include="..\DataBase\DataBase.csproj" />
   </ItemGroup>
 
 </Project>

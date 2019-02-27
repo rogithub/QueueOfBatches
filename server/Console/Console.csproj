@@ -55,6 +55,10 @@
       <Project>{f437e047-94a7-4150-a63b-cbf3bc708eef}</Project>
       <Name>Message</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DataBase\DataBase.csproj">
+      <Project>{d8985277-3605-44bb-9d64-2629b6dbd24c}</Project>
+      <Name>DataBase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\JobProcessor\JobProcessor.fsproj">
       <Project>{3a10c541-2cb1-4f10-b21a-ad7a9575b4ea}</Project>
       <Name>JobProcessor</Name>

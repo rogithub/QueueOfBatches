@@ -1,10 +1,8 @@
 ﻿
+using DataBase;
 using JobProcessor;
 using Message;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 
 namespace Console
@@ -17,7 +15,10 @@ namespace Console
 
 			var c = new CancellationTokenSource();
 			var t = c.Token;
-			var service = new Agent.Service(t, Guid.NewGuid());
+			IFeedProvider provider = new DbFeedProvider();
+			var service = new Agent.Service(t, provider, AppSettings.MillisecondsToBeIdle, AppSettings.BatchSize, Guid.NewGuid());
+
+
 			service.Start();
 			System.Console.WriteLine("{0} instance {1} Listenning...", service.MachineName, service.InstanceId);
 

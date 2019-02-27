@@ -9,9 +9,9 @@ using System.Text;
 
 namespace DataBase
 {
-	public static class DbFeedProvider
+	public class DbFeedProvider : IFeedProvider
 	{
-		public static IEnumerable<IAssemblyData> GetNextBatch(int batchSize)
+		public IEnumerable<IAssemblyData> GetNextBatch(int batchSize)
 		{
 			string text = string.Format("SELECT TOP {0} * FROM T_FEED_QUEUE WHERE F_DATE_STARTED IS NULL ORDER BY F_DATE_CREATED", batchSize);
 
@@ -40,7 +40,7 @@ namespace DataBase
 			return list;
 		}
 
-		public static int Start(Guid[] rows, string machineName, Guid instanceId)
+		public int Start(Guid[] rows, string machineName, Guid instanceId)
 		{
 			if (rows.Length == 0) return 0;
 
@@ -57,7 +57,7 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
-		public static int Save(IAssemblyData[] rows)
+		public int Save(IAssemblyData[] rows)
 		{
 			StringBuilder sb = new StringBuilder();
 			List<SqlParameter> allParams = new List<SqlParameter>();
@@ -84,7 +84,7 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
-		public static int Update(FinishResult result)
+		public int Update(FinishResult result)
 		{
 			List<SqlParameter> allParams = new List<SqlParameter>();
 			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_COMPLETED=GETDATE(), F_STATUS=@finishStatus, F_RESULT=@result, F_EXCEPTION=@exception WHERE F_GUID=@id";
