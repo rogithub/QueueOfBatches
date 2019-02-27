@@ -45,8 +45,8 @@ module Agent =
                 async {
                     let! channel = inbox.Receive();
 
-                    let list = Seq.toArray <| InitData.Provider.GetNextBatch(InitData.BatchSize);
-                    let ids = list |> Array.map(fun it -> it.MessageId)
+                    let list = InitData.Provider.GetNextBatch(InitData.BatchSize);
+                    let ids = list |> Seq.map(fun it -> it.MessageId)
                     let count = InitData.Provider.StartBatch(ids, InitData.InstanceName, InitData.InstanceId)
 
                     match count with

@@ -9,7 +9,7 @@ namespace Message
 	public interface IFeedProvider
 	{
 		IEnumerable<IAssemblyData> GetNextBatch(int x);
-		int StartBatch(Guid[] rows, string machineName, Guid instanceId);
+		int StartBatch(IEnumerable<Guid> rows, string machineName, Guid instanceId);
 		int AddJobs(IAssemblyData[] rows);
 		int CompleteJob(FinishResult result);
 	}

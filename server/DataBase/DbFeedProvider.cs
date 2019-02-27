@@ -40,10 +40,9 @@ namespace DataBase
 			return list;
 		}
 
-		public int StartBatch(Guid[] rows, string machineName, Guid instanceId)
+		public int StartBatch(IEnumerable<Guid> rows, string machineName, Guid instanceId)
 		{
-			if (rows.Length == 0) return 0;
-
+			if (rows.Count() == 0) return 0;
 
 			string inlist = string.Join(",", from p in rows select string.Format("'{0}'", p.ToString()));
 			string inPart = string.Format(" ({0}) ", inlist);
