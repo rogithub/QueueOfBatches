@@ -47,14 +47,14 @@ module Agent =
 
                     let list = Seq.toArray <| InitData.Provider.GetNextBatch(InitData.BatchSize);
                     let ids = list |> Array.map(fun it -> it.MessageId)
-                    InitData.Provider.StartBatch(ids, InitData.InstanceName, InitData.InstanceId) |> ignore
+                    let count = InitData.Provider.StartBatch(ids, InitData.InstanceName, InitData.InstanceId)
 
-                    match Array.length list with
+                    match count with
                     | 0 ->
                         do! Async.Sleep InitData.PollInterval
                         printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                     | _ ->
-                        printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
+                        printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) count
 
                     [for data in list do this.Process data (fun result -> InitData.Provider.CompleteJob(result) |> ignore )] |> ignore
 
