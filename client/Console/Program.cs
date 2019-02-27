@@ -21,7 +21,7 @@ namespace Console
 					Assembly = Assembly.GetAssembly(typeof(FileCreator)),
 					ConstructorParameters = new object[] { @"C:\Users\43918\Desktop\test" },
 					FullyQualifiedName = "Examples.FileCreator",
-					MessageId = id,
+					Id = id,
 					MethodParameters = new object[] { id },
 					MethodParametersTypes = new Type[] { typeof(Guid) },
 					MethodToRun = "CreateFile"
@@ -35,7 +35,7 @@ namespace Console
 			System.Console.WriteLine("Creating {0} files...", count);
 			DbFeedProvider.Save(CreateFile(count).ToArray());
 			System.Console.WriteLine("Done.", count);
-			System.Console.ReadLine();
+			System.Console.ReadKey();
 		}
 	}
 }
