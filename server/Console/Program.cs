@@ -14,7 +14,7 @@ namespace Console
 		{
 			IFeedProvider provider = new DbFeedProvider();
 			var c = new CancellationTokenSource();
-			Agent.InitData data = new Agent.InitData(c.Token, provider, AppSettings.MillisecondsToBeIdle, AppSettings.BatchSize, Guid.NewGuid(), Environment.MachineName);
+			var data = new Agent.InitData(c.Token, provider, AppSettings.MillisecondsToBeIdle, AppSettings.BatchSize, Guid.NewGuid(), Environment.MachineName);
 			var service = new Agent.Service(data);
 
 			service.Start();

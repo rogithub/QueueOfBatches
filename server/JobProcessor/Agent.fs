@@ -6,7 +6,7 @@ module Agent =
     open System.Reflection
     open System.Threading
     type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
-    type InitData = { Token: CancellationToken; Provider: IFeedProvider; PollWait: int; BatchSize: int; InstanceId: Guid; InstanceName: string }
+    type InitData = { Token: CancellationToken; Provider: IFeedProvider; PollInterval: int; BatchSize: int; InstanceId: Guid; InstanceName: string }
 
     type Service (initData: InitData) =
         let InitData = initData
@@ -51,7 +51,7 @@ module Agent =
 
                     match Array.length list with
                     | 0 ->
-                        do! Async.Sleep InitData.PollWait
+                        do! Async.Sleep InitData.PollInterval
                         printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                     | _ ->
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
