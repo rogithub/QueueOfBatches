@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Message
 {
-	public interface IFeedProvider<T, A>
+	public interface IFeedProvider<T, TResult>
 	{
-		IEnumerable<T> GetNextBatch(int x);
+		IEnumerable<T> GetNextBatch(int size);
 		int StartBatch(IEnumerable<Guid> ids, string machineName, Guid instanceId);
-		int AddJobs(T[] rows);
-		int CompleteJob(A result);
+		int AddJobs(T[] jobs);
+		int CompleteJob(TResult result);
 	}
 }

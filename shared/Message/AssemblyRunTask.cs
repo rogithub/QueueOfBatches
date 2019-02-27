@@ -10,8 +10,8 @@ namespace Message
 			try
 			{
 				var t = msg.Assembly.GetType(msg.FullyQualifiedName);
-				var methodInfo = t.GetMethod(msg.MethodToRun, BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, msg.MethodParametersTypes, null);
 				var o = Activator.CreateInstance(t, msg.ConstructorParameters);
+				var methodInfo = t.GetMethod(msg.MethodToRun, BindingFlags.Public | BindingFlags.Instance, null, CallingConventions.Any, msg.MethodParametersTypes, null);
 				var r = methodInfo.Invoke(o, msg.MethodParameters);
 				return new FinishResult(msg.Id, FinishStatus.Succes, r, null);
 			}
