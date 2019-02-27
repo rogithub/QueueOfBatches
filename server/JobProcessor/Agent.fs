@@ -32,12 +32,12 @@ module Agent =
                 }
             loop (0)), InitData.Token)
 
-        member private this.Process data callback =
+        member private this.Process data =
             let messageAsync = this.AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), data.TimeoutMilliseconds);
             Async.StartWithContinuations(messageAsync,
-                (fun  good -> callback good),
-                (fun error -> callback (new FinishResult(data.MessageId, FinishStatus.Error, null, error))),
-                (fun _ -> callback (new FinishResult(data.MessageId, FinishStatus.Canceled, null, null))), InitData.Token)
+                (fun  result -> InitData.Provider.CompleteJob(result) |> ignore),
+                (fun   error -> InitData.Provider.CompleteJob(new FinishResult(data.MessageId, FinishStatus.Error, null, error)) |> ignore),
+                (fun _       -> InitData.Provider.CompleteJob(new FinishResult(data.MessageId, FinishStatus.Canceled, null, null)) |> ignore), InitData.Token)
 
 
         member private this.FeedSource = MailboxProcessor<AsyncReplyChannel<_>>.Start((fun inbox ->
@@ -56,7 +56,7 @@ module Agent =
                     | _ ->
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) count
 
-                    [for data in list do this.Process data (fun result -> InitData.Provider.CompleteJob(result) |> ignore )] |> ignore
+                    [for data in list do this.Process data] |> ignore
 
                     channel.Reply()
                     do! loop (n + 1);
