@@ -6,10 +6,10 @@ module Agent =
     open System.Reflection
     type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
 
-    type Service (token) =
+    type Service (token, instance: Guid) =
         let myToken = token
         member this.MachineName  = System.Environment.MachineName
-        member this.InstanceId = Guid.NewGuid()
+        member this.InstanceId = instance
 
         member private this.AssemblyRunner = MailboxProcessor<Message>.Start((fun inbox ->
             let rec loop n =
@@ -46,8 +46,6 @@ module Agent =
                     let! channel = inbox.Receive();
 
                     let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize, this.MachineName, this.InstanceId);
-
-                    let ids = list |> Array.map (fun it -> it.MessageId)
 
                     if (list.Length = 0) then
                         do! Async.Sleep DataBase.AppSettings.MillisecondsToBeIdle

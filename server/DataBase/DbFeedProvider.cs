@@ -15,7 +15,7 @@ namespace DataBase
 		/// https://stackoverflow.com/questions/2133393/is-update-with-nested-select-atomic-operation
 		/// </summary>
 		static string SELECT_UPDATE = @"
-		WITH q AS
+		;WITH q AS
         (
 			SELECT  TOP {0} *
 			FROM    T_FEED_QUEUE WITH (ROWLOCK, READPAST)
