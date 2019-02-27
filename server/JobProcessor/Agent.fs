@@ -47,19 +47,17 @@ module Agent =
 
                     let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize);
 
-                    if (list.Length = 0) then
+                    match Array.length list with
+                    | 0 ->
                         do! Async.Sleep DataBase.AppSettings.MillisecondsToBeIdle
                         printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
-                    else
+                    | _ ->
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
 
                     let ids = list |> Array.map(fun it -> it.MessageId)
                     DataBase.DbFeedProvider.Start(ids, this.MachineName, this.InstanceId) |> ignore
 
-                    [for data in list do this.Process data (fun result ->
-                            DataBase.DbFeedProvider.Update(result) |> ignore
-                        )
-                    |> ignore] |> ignore
+                    [for data in list do this.Process data (fun result -> DataBase.DbFeedProvider.Update(result) |> ignore )] |> ignore
 
                     channel.Reply()
                     do! loop (n + 1);

@@ -24,7 +24,7 @@ namespace Console
 			System.Console.ReadKey();
 			c.Cancel();
 
-			System.Console.ReadLine();
+			System.Console.ReadKey();
 		}
 	}
 }
