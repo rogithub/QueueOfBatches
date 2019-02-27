@@ -46,6 +46,8 @@ module Agent =
                     let! channel = inbox.Receive();
 
                     let list = Seq.toArray <| DataBase.DbFeedProvider.GetNextBatch(DataBase.AppSettings.BatchSize);
+                    let ids = list |> Array.map(fun it -> it.MessageId)
+                    DataBase.DbFeedProvider.Start(ids, this.MachineName, this.InstanceId) |> ignore
 
                     match Array.length list with
                     | 0 ->
@@ -53,9 +55,6 @@ module Agent =
                         printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
                     | _ ->
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
-
-                    let ids = list |> Array.map(fun it -> it.MessageId)
-                    DataBase.DbFeedProvider.Start(ids, this.MachineName, this.InstanceId) |> ignore
 
                     [for data in list do this.Process data (fun result -> DataBase.DbFeedProvider.Update(result) |> ignore )] |> ignore
 
