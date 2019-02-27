@@ -19,7 +19,7 @@ namespace Console
 			var t = c.Token;
 			var service = new Agent.Service(t);
 			service.Start();
-			System.Console.WriteLine("{0} instance {0} Listenning...", service.MachineName, service.InstanceId);
+			System.Console.WriteLine("{0} instance {1} Listenning...", service.MachineName, service.InstanceId);
 
 			System.Console.ReadKey();
 			c.Cancel();
