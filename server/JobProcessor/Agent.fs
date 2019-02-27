@@ -3,41 +3,42 @@ module Agent =
 
     open Message
     open System
-    open System.Reflection
     open System.Threading
-    type Message = IAssemblyData * AsyncReplyChannel<FinishResult>
-    type InitData = { Token: CancellationToken; Provider: IFeedProvider; PollInterval: int; BatchSize: int; InstanceId: Guid; InstanceName: string }
 
-    type Service (initData: InitData) =
+    type Message<'input, 'output> = 'input * AsyncReplyChannel<'output>
+    type InitData<'input, 'output> = {
+        Task: IMessageTask<'input, 'output>;
+        Token: CancellationToken;
+        Provider: IFeedProvider<'input, 'output>;
+        PollInterval: int;
+        BatchSize: int;
+        InstanceId: Guid;
+        InstanceName: string }
+
+    type Service (initData: InitData<IAssemblyData, FinishResult>) =
         let InitData = initData
 
-        member private this.AssemblyRunner = MailboxProcessor<Message>.Start((fun inbox ->
+        member private this.TaskRunner = MailboxProcessor<Message<IAssemblyData, FinishResult>>.Start((fun inbox ->
             let rec loop() =
                 async {
                     let! (msg, channel) = inbox.Receive();
 
                     try
-
-                        let t = msg.Assembly.GetType(msg.FullyQualifiedName)
-                        let methodInfo = t.GetMethod(msg.MethodToRun, BindingFlags.Public ||| BindingFlags.Instance, null, CallingConventions.Any, msg.MethodParametersTypes, null);
-                        let o = Activator.CreateInstance(t, msg.ConstructorParameters);
-                        let r = methodInfo.Invoke(o, msg.MethodParameters);
-                        channel.Reply(new FinishResult(msg.MessageId, FinishStatus.Succes, r, null));
+                        channel.Reply(initData.Task.OnRun(msg));
                         do! loop()
-
                     with
                     | ex ->
-                        channel.Reply(new FinishResult(msg.MessageId, FinishStatus.Error, null, ex));
+                        channel.Reply(initData.Task.OnError(msg, ex));
                         do! loop()
                 }
             loop()), InitData.Token)
 
         member private this.Process data =
-            let messageAsync = this.AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), data.TimeoutMilliseconds);
+            let messageAsync = this.TaskRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), data.TimeoutMilliseconds);
             Async.StartWithContinuations(messageAsync,
                 (fun  result -> InitData.Provider.CompleteJob(result) |> ignore),
-                (fun   error -> InitData.Provider.CompleteJob(new FinishResult(data.MessageId, FinishStatus.Error, null, error)) |> ignore),
-                (fun _       -> InitData.Provider.CompleteJob(new FinishResult(data.MessageId, FinishStatus.Canceled, null, null)) |> ignore), InitData.Token)
+                (fun   error -> InitData.Provider.CompleteJob(initData.Task.OnError(data, error)) |> ignore),
+                (fun     can -> InitData.Provider.CompleteJob(initData.Task.OnCancell(data, can)) |> ignore), InitData.Token)
 
 
         member private this.FeedSource = MailboxProcessor<AsyncReplyChannel<_>>.Start((fun inbox ->
@@ -46,7 +47,7 @@ module Agent =
                     let! channel = inbox.Receive();
 
                     let list = InitData.Provider.GetNextBatch(InitData.BatchSize);
-                    let ids = list |> Seq.map(fun it -> it.MessageId)
+                    let ids = list |> Seq.map(fun it -> it.Id)
                     let count = InitData.Provider.StartBatch(ids, InitData.InstanceName, InitData.InstanceId)
 
                     match count with

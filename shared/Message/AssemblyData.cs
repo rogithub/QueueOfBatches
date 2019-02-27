@@ -6,7 +6,7 @@ namespace Message
 	[Serializable]
 	public class AssemblyData : IAssemblyData
 	{
-		public Guid MessageId { get; set; }
+		public Guid Id { get; set; }
 		public object[] ConstructorParameters { get; set; }
 		public object[] MethodParameters { get; set; }
 		public Type[] MethodParametersTypes { get; set; }

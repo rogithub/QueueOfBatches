@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DataBase
 {
-	public class DbFeedProvider : IFeedProvider
+	public class DbFeedProvider : IFeedProvider<IAssemblyData, FinishResult>
 	{
 		public IEnumerable<IAssemblyData> GetNextBatch(int batchSize)
 		{
@@ -30,7 +30,7 @@ namespace DataBase
 						ConstructorParameters = GetCastedXml<object[]>(dr["F_CONSTRUCTOR_PARAMETERS"]),
 						MethodParameters = GetCastedXml<object[]>(dr["F_METHOD_PARAMETERS"]),
 						FullyQualifiedName = Conversions.GetString(dr["F_FULLY_QUALIFIED_CLASS_NAME"]),
-						MessageId = Conversions.GetCastValue<Guid>(dr["F_GUID"]),
+						Id = Conversions.GetCastValue<Guid>(dr["F_GUID"]),
 						MethodToRun = Conversions.GetString(dr["F_METHOD_NAME"]),
 						TimeoutMilliseconds = Conversions.GetCastValue<int>(dr["F_TIMEOUT_MILLISECONDS"])
 					});
@@ -67,7 +67,7 @@ namespace DataBase
 			for (int i = 0; i < rows.Length; i++)
 			{
 				sb.AppendFormat(text, i);
-				allParams.Add(Db.GetParam(string.Format("@guid{0}", i), SqlDbType.UniqueIdentifier, rows[i].MessageId));
+				allParams.Add(Db.GetParam(string.Format("@guid{0}", i), SqlDbType.UniqueIdentifier, rows[i].Id));
 				allParams.Add(Db.GetParam(string.Format("@timeoutms{0}", i), SqlDbType.Int, rows[i].TimeoutMilliseconds <= 0 ? -1 : rows[i].TimeoutMilliseconds));
 				allParams.Add(Db.GetParam(string.Format("@assembly{0}", i), SqlDbType.Binary, Serializer.Serialize(rows[i].Assembly)));
 				allParams.Add(Db.GetParam(string.Format("@paramTypes{0}", i), SqlDbType.Binary, Serializer.Serialize(rows[i].MethodParametersTypes)));
@@ -92,7 +92,7 @@ namespace DataBase
 			cmd.Parameters.Add(Db.GetParam("@finishStatus", SqlDbType.Int, result.Status));
 			cmd.Parameters.Add(Db.GetParam("@result", SqlDbType.Xml, Serializer.XmlSerialize(result.Result)));
 			cmd.Parameters.Add(Db.GetParam("@exception", SqlDbType.VarChar, result.Exception == null ? string.Empty : result.Exception.ToString()));
-			cmd.Parameters.Add(Db.GetParam("@id", SqlDbType.UniqueIdentifier, result.MessageId));
+			cmd.Parameters.Add(Db.GetParam("@id", SqlDbType.UniqueIdentifier, result.Id));
 
 			cmd.Connection = Db.GetConnection();
 			return Db.ExecuteNonQuery(cmd);

@@ -12,9 +12,10 @@ namespace Console
 
 		static void Main(string[] args)
 		{
-			IFeedProvider provider = new DbFeedProvider();
+			IFeedProvider<IAssemblyData, FinishResult> provider = new DbFeedProvider();
 			var c = new CancellationTokenSource();
-			var data = new Agent.InitData(c.Token, provider, AppSettings.MillisecondsToBeIdle, AppSettings.BatchSize, Guid.NewGuid(), Environment.MachineName);
+			var task = new AssemblyRunTask();
+			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, AppSettings.MillisecondsToBeIdle, AppSettings.BatchSize, Guid.NewGuid(), Environment.MachineName);
 			var service = new Agent.Service(data);
 
 			service.Start();
