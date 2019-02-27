@@ -56,7 +56,7 @@ module Agent =
                     | _ ->
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) count
 
-                    [for data in list do this.Process data] |> ignore
+                    list |> Seq.iter(this.Process)
 
                     channel.Reply()
                     do! loop (n + 1);
