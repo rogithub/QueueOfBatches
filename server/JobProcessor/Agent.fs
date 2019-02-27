@@ -12,7 +12,7 @@ module Agent =
         let InitData = initData
 
         member private this.AssemblyRunner = MailboxProcessor<Message>.Start((fun inbox ->
-            let rec loop n =
+            let rec loop() =
                 async {
                     let! (msg, channel) = inbox.Receive();
 
@@ -23,14 +23,14 @@ module Agent =
                         let o = Activator.CreateInstance(t, msg.ConstructorParameters);
                         let r = methodInfo.Invoke(o, msg.MethodParameters);
                         channel.Reply(new FinishResult(msg.MessageId, FinishStatus.Succes, r, null));
-                        do! loop (n + 1)
+                        do! loop()
 
                     with
                     | ex ->
                         channel.Reply(new FinishResult(msg.MessageId, FinishStatus.Error, null, ex));
-                        do! loop (n + 1)
+                        do! loop()
                 }
-            loop (0)), InitData.Token)
+            loop()), InitData.Token)
 
         member private this.Process data =
             let messageAsync = this.AssemblyRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), data.TimeoutMilliseconds);
