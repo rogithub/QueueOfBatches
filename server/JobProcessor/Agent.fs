@@ -50,7 +50,7 @@ module Agent =
 
                     let list = Seq.toArray <| Provider.GetNextBatch(BatchSize);
                     let ids = list |> Array.map(fun it -> it.MessageId)
-                    Provider.Start(ids, this.MachineName, this.InstanceId) |> ignore
+                    Provider.StartBatch(ids, this.MachineName, this.InstanceId) |> ignore
 
                     match Array.length list with
                     | 0 ->
@@ -59,7 +59,7 @@ module Agent =
                     | _ ->
                         printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) list.Length
 
-                    [for data in list do this.Process data (fun result -> Provider.Update(result) |> ignore )] |> ignore
+                    [for data in list do this.Process data (fun result -> Provider.CompleteJob(result) |> ignore )] |> ignore
 
                     channel.Reply()
                     do! loop (n + 1);
@@ -75,5 +75,5 @@ module Agent =
 
         member this.AddJobs jobs =
             let chunks = jobs |> Array.chunkBySize BatchSize
-            [for chunk in chunks do Provider.Save(chunk) |> ignore ] |> ignore
+            [for chunk in chunks do Provider.AddJobs(chunk) |> ignore ] |> ignore
             chunks.Length

@@ -40,7 +40,7 @@ namespace DataBase
 			return list;
 		}
 
-		public int Start(Guid[] rows, string machineName, Guid instanceId)
+		public int StartBatch(Guid[] rows, string machineName, Guid instanceId)
 		{
 			if (rows.Length == 0) return 0;
 
@@ -57,7 +57,7 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
-		public int Save(IAssemblyData[] rows)
+		public int AddJobs(IAssemblyData[] rows)
 		{
 			StringBuilder sb = new StringBuilder();
 			List<SqlParameter> allParams = new List<SqlParameter>();
@@ -84,7 +84,7 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
-		public int Update(FinishResult result)
+		public int CompleteJob(FinishResult result)
 		{
 			List<SqlParameter> allParams = new List<SqlParameter>();
 			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_COMPLETED=GETDATE(), F_STATUS=@finishStatus, F_RESULT=@result, F_EXCEPTION=@exception WHERE F_GUID=@id";
