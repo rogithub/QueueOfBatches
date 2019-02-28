@@ -68,8 +68,8 @@ module Agent =
             let messageAsync = this.FeedSource.PostAndAsyncReply((fun replyChannel -> replyChannel));
             Async.StartWithContinuations(messageAsync,
                 (fun _ -> this.Start()),
-                (fun _ -> ()),
-                (fun _ -> ()))
+                (fun ex -> printfn "[%s] %s " (DateTime.Now.ToLongTimeString()) (ex.ToString()) ),
+                (fun _ -> printfn "[%s] Canceled " (DateTime.Now.ToLongTimeString())))
 
         member this.AddJobs jobs =
             let chunks = jobs |> Array.chunkBySize InitData.BatchSize
