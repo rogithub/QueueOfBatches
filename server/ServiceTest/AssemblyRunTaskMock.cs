@@ -19,9 +19,9 @@ namespace ServiceTest
 			this.OnErrorExecuted = onError;
 		}
 
-		public new FinishResult OnRun(IAssemblyData input)
+		public new FinishResult OnSuccess(IAssemblyData input)
 		{
-			var result = base.OnRun(input);
+			var result = base.OnSuccess(input);
 			if (this.OnSuccessExecuted != null) this.OnSuccessExecuted(result, input);
 			return result;
 		}

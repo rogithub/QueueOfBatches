@@ -24,7 +24,7 @@ module Agent =
                     let! (msg, channel) = inbox.Receive();
 
                     try
-                        channel.Reply(initData.Task.OnRun(msg));
+                        channel.Reply(initData.Task.OnSuccess(msg));
                         do! loop()
                     with
                     | ex ->

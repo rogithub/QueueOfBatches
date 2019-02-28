@@ -5,7 +5,7 @@ namespace Message
 {
 	public class AssemblyRunTask : IMessageTask<IAssemblyData, FinishResult>
 	{
-		public FinishResult OnRun(IAssemblyData msg)
+		public FinishResult OnSuccess(IAssemblyData msg)
 		{
 			try
 			{
