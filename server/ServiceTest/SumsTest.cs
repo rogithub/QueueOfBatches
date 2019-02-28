@@ -13,7 +13,7 @@ namespace ServiceTest
 	public class ServiceTest
 	{
 		[TestMethod]
-		public void InstaceTest()
+		public void SumsTest()
 		{
 			Guid instanceId = Guid.NewGuid();
 			int pollInterval = 0;
@@ -22,10 +22,15 @@ namespace ServiceTest
 			var jobs = new ConcurrentDictionary<IAssemblyData, FinishResult>();
 			int counter = 0;
 			int itemsTimoutMs = -1;
+			int tasksToCreate = 1000;
+			int timeToWaitForAllToCompleteMs = 1000;
+			int numberA = 1;
+			int numberB = 2;
+			int expectedResult = numberA + numberB;
 
 			Action<FinishResult, IAssemblyData> onSuccess = (r, d) =>
 			{
-				Assert.AreEqual(3, r.Result);
+				Assert.AreEqual(expectedResult, r.Result);
 				Assert.AreEqual(r.Id, d.Id);
 			};
 
@@ -49,16 +54,14 @@ namespace ServiceTest
 			var task = new AssemblyRunTaskMock(onSuccess, onCancel, onError);
 			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, pollInterval, batchSize, instanceId, instanceName);
 			var service = new Agent.Service<IAssemblyData, FinishResult>(data);
-
-
-
-			IEnumerable<IAssemblyData> tasks = TaskFactory.Create(Enumerable.Repeat(sum, 10), Enumerable.Repeat(new int[] { 1, 2 }, 10), itemsTimoutMs);
-			service.AddJobs(tasks.ToArray());
 			service.Start();
 
-			// wait one second to finish
-			Thread.Sleep(1000);
+			IEnumerable<IAssemblyData> tasks = TaskFactory.Create(Enumerable.Repeat(sum, tasksToCreate), Enumerable.Repeat(new int[] { numberA, numberB }, tasksToCreate), itemsTimoutMs);
+			service.AddJobs(tasks.ToArray());
 
+			// wait one second to finish
+			Thread.Sleep(timeToWaitForAllToCompleteMs);
+			Assert.AreEqual(tasksToCreate, tasks.Count());
 			Assert.AreEqual(0, counter);
 		}
 	}
