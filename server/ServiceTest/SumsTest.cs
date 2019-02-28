@@ -10,10 +10,10 @@ using System.Collections.Concurrent;
 namespace ServiceTest
 {
 	[TestClass]
-	public class ServiceTest
+	public class SumsTest
 	{
 		[TestMethod]
-		public void SumsTest()
+		public void SuccessCase()
 		{
 			Guid instanceId = Guid.NewGuid();
 			int pollInterval = 0;
