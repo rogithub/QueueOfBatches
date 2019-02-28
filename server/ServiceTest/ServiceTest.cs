@@ -30,24 +30,16 @@ namespace ServiceTest
 
 			Action<FinishResult, IAssemblyData> onSuccess = (r, d) =>
 			{
+				Assert.IsNotNull(d);
+				Assert.IsNull(r.Exception);
+				Assert.AreEqual(FinishStatus.Succes, r.Status);
 				Assert.AreEqual(expectedResult, r.Result);
 				Assert.AreEqual(r.Id, d.Id);
 			};
 
-			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) =>
-			{
-				Interlocked.Increment(ref counter);
-			};
-			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) =>
-			{
-				Interlocked.Increment(ref counter);
-			};
-
-			Func<int, int, int> sum = (a, b) =>
-			{
-				return a + b;
-			};
-
+			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
+			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
+			Func<int, int, int> sum = (a, b) => a + b;
 
 			IFeedProvider<IAssemblyData, FinishResult> provider = new FeedProviderMock(jobs, null, null, null, null);
 			var c = new CancellationTokenSource();
