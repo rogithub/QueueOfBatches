@@ -9,12 +9,12 @@ namespace ServiceTest
 {
 	public class AssemblyRunTaskMock : AssemblyRunTask, IMessageTask<IAssemblyData, FinishResult>
 	{
-		private Action<FinishResult, IAssemblyData> OnRunExecuted;
+		private Action<FinishResult, IAssemblyData> OnSuccessExecuted;
 		private Action<FinishResult, IAssemblyData, Exception> OnCancelExecuted;
 		private Action<FinishResult, IAssemblyData, Exception> OnErrorExecuted;
-		public AssemblyRunTaskMock(Action<FinishResult, IAssemblyData> onRun, Action<FinishResult, IAssemblyData, Exception> onCancel, Action<FinishResult, IAssemblyData, Exception> onError)
+		public AssemblyRunTaskMock(Action<FinishResult, IAssemblyData> onSuccess = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
 		{
-			this.OnRunExecuted = onRun;
+			this.OnSuccessExecuted = onSuccess;
 			this.OnCancelExecuted = onCancel;
 			this.OnErrorExecuted = onError;
 		}
@@ -22,20 +22,20 @@ namespace ServiceTest
 		public new FinishResult OnRun(IAssemblyData input)
 		{
 			var result = base.OnRun(input);
-			this.OnRunExecuted(result, input);
+			if (this.OnSuccessExecuted != null) this.OnSuccessExecuted(result, input);
 			return result;
 		}
 		public new FinishResult OnCancell(IAssemblyData input, Exception ex)
 		{
 			var result = base.OnCancell(input, ex);
-			this.OnCancelExecuted(result, input, ex);
+			if (this.OnCancelExecuted != null) this.OnCancelExecuted(result, input, ex);
 			return result;
 		}
 
 		public new FinishResult OnError(IAssemblyData input, Exception ex)
 		{
 			var result = base.OnError(input, ex);
-			this.OnErrorExecuted(result, input, ex);
+			if (this.OnErrorExecuted != null) this.OnErrorExecuted(result, input, ex);
 			return result;
 		}
 	}

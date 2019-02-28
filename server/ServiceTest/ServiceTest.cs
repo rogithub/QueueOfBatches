@@ -5,6 +5,7 @@ using System.Threading;
 using JobProcessor;
 using Message;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Concurrent;
 
 namespace ServiceTest
 {
@@ -18,39 +19,14 @@ namespace ServiceTest
 			int pollInterval = 0;
 			int batchSize = 10;
 			string instanceName = Environment.MachineName;
-			var jobs = new Dictionary<IAssemblyData, FinishResult>();
+			var jobs = new ConcurrentDictionary<IAssemblyData, FinishResult>();
+			int counter = 0;
 
-			Action<IAssemblyData[]> onJobsAdded = (d) =>
+			Action<FinishResult, IAssemblyData> onSuccess = (r, d) =>
 			{
-				Assert.IsNotNull(d);
-			};
-			Action<FinishResult> onJobCompleted = (d) =>
-			{
-				Assert.IsNotNull(d);
-			};
-			Action<int> onGetNextBatch = (size) =>
-			{
-				Assert.AreEqual(batchSize, size);
-			};
-
-			Action<IEnumerable<Guid>, string, Guid> onBatchStarted = (ids, name, id) =>
-			{
-				Assert.AreEqual(instanceName, name);
-			};
-
-			Action<FinishResult, IAssemblyData> onRunExecuted = (r, d) =>
-			{
-				Assert.AreEqual(FinishStatus.Succes, r.Result);
-			};
-			Action<FinishResult, IAssemblyData, Exception> onCancelExecuted = (r, d, e) =>
-			{
-				// never should be called
-				Assert.IsTrue(false);
-			};
-			Action<FinishResult, IAssemblyData, Exception> onErrorExecuted = (r, d, e) =>
-			{
-				// never should be called
-				Assert.IsTrue(false);
+				Assert.AreEqual(3, r.Result);
+				Assert.AreEqual(r.Id, d.Id);
+				System.Threading.Interlocked.Increment(ref counter);
 			};
 
 			Func<int, int, int> sum = (a, b) =>
@@ -59,9 +35,9 @@ namespace ServiceTest
 			};
 
 
-			IFeedProvider<IAssemblyData, FinishResult> provider = new FeedProviderMock(jobs, onJobsAdded, onJobCompleted, onGetNextBatch, onBatchStarted);
+			IFeedProvider<IAssemblyData, FinishResult> provider = new FeedProviderMock(jobs, null, null, null, null);
 			var c = new CancellationTokenSource();
-			var task = new AssemblyRunTaskMock(onRunExecuted, onCancelExecuted, onErrorExecuted);
+			var task = new AssemblyRunTaskMock(onSuccess, null, null);
 			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, pollInterval, batchSize, instanceId, instanceName);
 			var service = new Agent.Service<IAssemblyData, FinishResult>(data);
 
@@ -71,8 +47,12 @@ namespace ServiceTest
 			service.AddJobs(tasks.ToArray());
 			service.Start();
 
-
+			// wait one second to finish
 			Thread.Sleep(1000);
+
+			int finalCount = tasks.Count();
+			Assert.IsTrue(finalCount > 0);
+			Assert.AreEqual(finalCount, counter);
 		}
 	}
 }
