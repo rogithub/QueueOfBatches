@@ -10,7 +10,7 @@ using System.Collections.Concurrent;
 namespace ServiceTest
 {
 	[TestClass]
-	public class SumsTest
+	public class ServiceTest
 	{
 		[TestMethod]
 		public void SuccessCase()
@@ -22,7 +22,7 @@ namespace ServiceTest
 			var jobs = new ConcurrentDictionary<IAssemblyData, FinishResult>();
 			int counter = 0;
 			int itemsTimoutMs = -1;
-			int tasksToCreate = 1000;
+			int tasksToCreate = 10000;
 			int timeToWaitForAllToCompleteMs = 1000;
 			int numberA = 1;
 			int numberB = 2;
