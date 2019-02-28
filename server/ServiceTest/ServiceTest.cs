@@ -26,6 +26,14 @@ namespace ServiceTest
 			{
 				Assert.AreEqual(3, r.Result);
 				Assert.AreEqual(r.Id, d.Id);
+			};
+
+			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) =>
+			{
+				System.Threading.Interlocked.Increment(ref counter);
+			};
+			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) =>
+			{
 				System.Threading.Interlocked.Increment(ref counter);
 			};
 
@@ -37,7 +45,7 @@ namespace ServiceTest
 
 			IFeedProvider<IAssemblyData, FinishResult> provider = new FeedProviderMock(jobs, null, null, null, null);
 			var c = new CancellationTokenSource();
-			var task = new AssemblyRunTaskMock(onSuccess, null, null);
+			var task = new AssemblyRunTaskMock(onSuccess, onCancel, onError);
 			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, pollInterval, batchSize, instanceId, instanceName);
 			var service = new Agent.Service<IAssemblyData, FinishResult>(data);
 
@@ -50,9 +58,7 @@ namespace ServiceTest
 			// wait one second to finish
 			Thread.Sleep(1000);
 
-			int finalCount = tasks.Count();
-			Assert.IsTrue(finalCount > 0);
-			Assert.AreEqual(finalCount, counter);
+			Assert.AreEqual(0, counter);
 		}
 	}
 }
