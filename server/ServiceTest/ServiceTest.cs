@@ -21,6 +21,7 @@ namespace ServiceTest
 			string instanceName = Environment.MachineName;
 			var jobs = new ConcurrentDictionary<IAssemblyData, FinishResult>();
 			int counter = 0;
+			int itemsTimoutMs = -1;
 
 			Action<FinishResult, IAssemblyData> onSuccess = (r, d) =>
 			{
@@ -30,11 +31,11 @@ namespace ServiceTest
 
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) =>
 			{
-				System.Threading.Interlocked.Increment(ref counter);
+				Interlocked.Increment(ref counter);
 			};
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) =>
 			{
-				System.Threading.Interlocked.Increment(ref counter);
+				Interlocked.Increment(ref counter);
 			};
 
 			Func<int, int, int> sum = (a, b) =>
@@ -51,7 +52,7 @@ namespace ServiceTest
 
 
 
-			IEnumerable<IAssemblyData> tasks = TaskFactory.Create(Enumerable.Repeat(sum, 10), Enumerable.Repeat(new int[] { 1, 2 }, 10), 10);
+			IEnumerable<IAssemblyData> tasks = TaskFactory.Create(Enumerable.Repeat(sum, 10), Enumerable.Repeat(new int[] { 1, 2 }, 10), itemsTimoutMs);
 			service.AddJobs(tasks.ToArray());
 			service.Start();
 
