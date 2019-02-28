@@ -85,11 +85,11 @@ module Agent =
                 ),
                 (fun ex ->
                     this.Stop()
-                    InitData.Listener.WriteLine(printf "[%s] Error %s " (DateTime.Now.ToLongTimeString()) (ex.ToString()))
+                    InitData.Listener.Fail("Error", ex.ToString())
                 ),
                 (fun ex ->
                     this.Stop()
-                    InitData.Listener.WriteLine(printf "[%s] Cancelled %s " (DateTime.Now.ToLongTimeString()) (ex.ToString()))
+                    InitData.Listener.Fail("Cancelled", ex.ToString())
                 ))
 
         member this.Start () =
