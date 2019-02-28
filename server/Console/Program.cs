@@ -22,6 +22,12 @@ namespace Console
 			System.Console.WriteLine("{0} instance {1} Listenning...", data.InstanceName, data.InstanceId);
 
 			System.Console.ReadKey();
+			service.Stop();
+
+			System.Console.ReadKey();
+			service.Start();
+
+			System.Console.ReadKey();
 			c.Cancel();
 
 			System.Console.ReadKey();

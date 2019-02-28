@@ -5,6 +5,11 @@ module Agent =
     open System
     open System.Threading
 
+    type Status =
+        | NotStarted
+        | Running
+        | Stoped
+
     type Message<'input, 'output> = 'input * AsyncReplyChannel<'output>
     type InitData<'input, 'output> = {
         Task: IMessageTask<'input, 'output>;
@@ -17,6 +22,7 @@ module Agent =
 
     type Service<'input, 'output> when 'input :> ITaskItem (initData: InitData<'input, 'output>) =
         let InitData = initData
+        let mutable Status = NotStarted
 
         member private this.TaskRunner = MailboxProcessor<Message<'input, 'output>>.Start((fun inbox ->
             let rec loop() =
@@ -60,16 +66,43 @@ module Agent =
                     list |> Seq.iter(this.Process)
 
                     channel.Reply()
-                    do! loop (n + 1);
+                    do! loop (n + 1)
                 }
             loop (0)), InitData.Token)
 
-        member this.Start () =
+        member private this.Starter () =
             let messageAsync = this.FeedSource.PostAndAsyncReply((fun replyChannel -> replyChannel));
             Async.StartWithContinuations(messageAsync,
-                (fun _ -> this.Start()),
-                (fun ex -> printfn "[%s] %s " (DateTime.Now.ToLongTimeString()) (ex.ToString()) ),
-                (fun _ -> printfn "[%s] Canceled " (DateTime.Now.ToLongTimeString())))
+                (fun _ ->
+                    match Status with
+                    | Running ->
+                        this.Starter()
+                    | _ ->
+                        printfn "[%s] Stoped " (DateTime.Now.ToLongTimeString())
+                ),
+                (fun ex ->
+                    this.Stop()
+                    printfn "[%s] Error %s " (DateTime.Now.ToLongTimeString()) (ex.ToString())
+                ),
+                (fun ex ->
+                    this.Stop()
+                    printfn "[%s] Cancelled %s " (DateTime.Now.ToLongTimeString()) (ex.ToString())
+                ))
+
+        member this.Start () =
+            match Status with
+            | NotStarted | Stoped ->
+                Status <- Running
+                printfn "[%s] Starting " (DateTime.Now.ToLongTimeString())
+                this.Starter()
+            | _ -> () // do nothing
+
+        member this.Stop () =
+            match Status with
+            | Running ->
+                Status <- Stoped
+                printfn "[%s] Stoping " (DateTime.Now.ToLongTimeString())
+            | _ -> () // do nothing
 
         member this.AddJobs jobs =
             let chunks = jobs |> Array.chunkBySize InitData.BatchSize
