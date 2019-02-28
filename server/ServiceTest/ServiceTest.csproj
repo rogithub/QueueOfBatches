@@ -52,7 +52,7 @@
     <Compile Include="IntAssemblyMethodMock.cs" />
     <Compile Include="AssemblyRunTaskMock.cs" />
     <Compile Include="TaskFactory.cs" />
-    <Compile Include="ServiceTest.cs" />
+    <Compile Include="SumsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FeedProviderMock.cs" />
   </ItemGroup>
