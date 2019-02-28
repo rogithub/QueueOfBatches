@@ -6,6 +6,7 @@ using JobProcessor;
 using Message;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace ServiceTest
 {
@@ -15,6 +16,7 @@ namespace ServiceTest
 		[TestMethod]
 		public void SuccessCase()
 		{
+			ConsoleTraceListener listener = new ConsoleTraceListener();
 			Guid instanceId = Guid.NewGuid();
 			int pollInterval = 0;
 			int batchSize = 10;
@@ -44,7 +46,7 @@ namespace ServiceTest
 			IFeedProvider<IAssemblyData, FinishResult> provider = new FeedProviderMock(jobs, null, null, null, null);
 			var c = new CancellationTokenSource();
 			var task = new AssemblyRunTaskMock(onSuccess, onCancel, onError);
-			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, pollInterval, batchSize, instanceId, instanceName);
+			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, pollInterval, batchSize, instanceId, instanceName, listener);
 			var service = new Agent.Service<IAssemblyData, FinishResult>(data);
 			service.Start();
 

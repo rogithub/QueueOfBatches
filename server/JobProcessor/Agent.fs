@@ -4,6 +4,8 @@ module Agent =
     open Message
     open System
     open System.Threading
+    open System.Diagnostics
+    open System.Diagnostics
 
     type Status =
         | NotStarted
@@ -18,7 +20,8 @@ module Agent =
         PollInterval: int;
         BatchSize: int;
         InstanceId: Guid;
-        InstanceName: string }
+        InstanceName: string;
+        Listener: TraceListener; }
 
     type Service<'input, 'output> when 'input :> ITaskItem (initData: InitData<'input, 'output>) =
         let InitData = initData
@@ -59,9 +62,9 @@ module Agent =
                     match count with
                     | 0 ->
                         do! Async.Sleep InitData.PollInterval
-                        printfn "round %d at %s" n (DateTime.Now.ToLongTimeString())
+                        InitData.Listener.WriteLine(printf "round %d at %s" n (DateTime.Now.ToLongTimeString()))
                     | _ ->
-                        printfn "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) count
+                        InitData.Listener.WriteLine(printf "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) count)
 
                     list |> Seq.iter(this.Process)
 
@@ -78,22 +81,22 @@ module Agent =
                     | Running ->
                         this.Starter()
                     | _ ->
-                        printfn "[%s] Stoped " (DateTime.Now.ToLongTimeString())
+                        InitData.Listener.WriteLine(printf "[%s] Stoped " (DateTime.Now.ToLongTimeString()))
                 ),
                 (fun ex ->
                     this.Stop()
-                    printfn "[%s] Error %s " (DateTime.Now.ToLongTimeString()) (ex.ToString())
+                    InitData.Listener.WriteLine(printf "[%s] Error %s " (DateTime.Now.ToLongTimeString()) (ex.ToString()))
                 ),
                 (fun ex ->
                     this.Stop()
-                    printfn "[%s] Cancelled %s " (DateTime.Now.ToLongTimeString()) (ex.ToString())
+                    InitData.Listener.WriteLine(printf "[%s] Cancelled %s " (DateTime.Now.ToLongTimeString()) (ex.ToString()))
                 ))
 
         member this.Start () =
             match Status with
             | NotStarted | Stoped ->
                 Status <- Running
-                printfn "[%s] Starting " (DateTime.Now.ToLongTimeString())
+                InitData.Listener.WriteLine(printf "[%s] Starting " (DateTime.Now.ToLongTimeString()))
                 this.Starter()
             | _ -> () // do nothing
 
@@ -101,7 +104,7 @@ module Agent =
             match Status with
             | Running ->
                 Status <- Stoped
-                printfn "[%s] Stoping " (DateTime.Now.ToLongTimeString())
+                InitData.Listener.WriteLine(printf "[%s] Stoping " (DateTime.Now.ToLongTimeString()))
             | _ -> () // do nothing
 
         member this.AddJobs jobs =
