@@ -1,4 +1,5 @@
-namespace JobProcessor
+namespace TaskRunner
+
 module Agent =
 
     open Tasks

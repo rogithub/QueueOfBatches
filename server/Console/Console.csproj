@@ -59,9 +59,9 @@
       <Project>{d8985277-3605-44bb-9d64-2629b6dbd24c}</Project>
       <Name>DataBase</Name>
     </ProjectReference>
-    <ProjectReference Include="..\JobProcessor\JobProcessor.fsproj">
-      <Project>{3a10c541-2cb1-4f10-b21a-ad7a9575b4ea}</Project>
-      <Name>JobProcessor</Name>
+    <ProjectReference Include="..\TaskRunner\TaskRunner.fsproj">
+      <Project>{7a9f0e94-ecca-443d-ab80-e776b7b34fe2}</Project>
+      <Name>TaskRunner</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

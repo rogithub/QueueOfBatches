@@ -65,9 +65,9 @@
       <Project>{0adad786-d9b8-42d2-a38d-3af78f00a558}</Project>
       <Name>Tasks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\JobProcessor\JobProcessor.fsproj">
-      <Project>{52469c18-5c2e-48b5-bd6b-fe17e33262a4}</Project>
-      <Name>JobProcessor</Name>
+    <ProjectReference Include="..\TaskRunner\TaskRunner.fsproj">
+      <Project>{7a9f0e94-ecca-443d-ab80-e776b7b34fe2}</Project>
+      <Name>TaskRunner</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
