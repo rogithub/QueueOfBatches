@@ -2,9 +2,8 @@
 
 namespace Tasks
 {
-	public class FinishResult
+	public struct FinishResult
 	{
-		public FinishResult() { }
 		public FinishResult(Guid id, FinishStatus status, object result, Exception ex)
 		{
 			this.Id = id;

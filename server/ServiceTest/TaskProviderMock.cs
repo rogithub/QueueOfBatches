@@ -1,8 +1,8 @@
 ﻿using Tasks;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace ServiceTest
 {
@@ -13,36 +13,37 @@ namespace ServiceTest
 		private Action<int> OnGetNextBatch;
 		private Action<IEnumerable<Guid>, string, Guid> OnBatchStarted;
 
-		public TaskProviderMock(ConcurrentDictionary<IAssemblyData, FinishResult> jobs,
+		public ConcurrentDictionary<Guid, FinishResult> Statuses { get; }
+
+		public ConcurrentQueue<IEnumerable<IAssemblyData>> Batches { get; }
+		public int BatchIndex { get; set; }
+
+		public TaskProviderMock(
 			Action<IEnumerable<IAssemblyData>> onJobsAdded = null,
 			Action<FinishResult> onJobCompleted = null,
 			Action<int> onGetNextBatch = null,
 			Action<IEnumerable<Guid>, string, Guid> onBatchStarted = null)
 		{
-			this.Jobs = jobs;
+			this.Batches = new ConcurrentQueue<IEnumerable<IAssemblyData>>();
+			this.Statuses = new ConcurrentDictionary<Guid, FinishResult>();
 			this.OnJobsAdded = onJobsAdded;
 			this.OnJobCompleted = onJobCompleted;
 			this.OnGetNextBatch = onGetNextBatch;
 			this.OnBatchStarted = onBatchStarted;
 		}
-		public ConcurrentDictionary<IAssemblyData, FinishResult> Jobs { get; set; }
+
 		public int AddTasks(IEnumerable<IAssemblyData> jobs)
 		{
-			jobs.Aggregate(this.Jobs, (dic, j) =>
-			{
-
-				dic.TryAdd(j, new FinishResult() { Id = j.Id, Status = FinishStatus.New });
-				return dic;
-			});
+			this.Batches.Enqueue(jobs);
 
 			if (this.OnJobsAdded != null) this.OnJobsAdded(jobs);
-			return this.Jobs.Count;
+			return jobs.ToArray().Length;
 		}
 
 		public int CompleteTask(FinishResult result)
 		{
-			var job = this.Jobs.Keys.First(it => it.Id == result.Id);
-			this.Jobs[job] = result;
+			Func<Guid, FinishResult, FinishResult> fn = (key, v) => { return new FinishResult() { Id = result.Id, Status = result.Status }; };
+			this.Statuses.AddOrUpdate(result.Id, new FinishResult() { Id = result.Id, Status = result.Status }, fn);
 
 			if (this.OnJobCompleted != null) this.OnJobCompleted(result);
 			return 1;
@@ -50,12 +51,28 @@ namespace ServiceTest
 
 		public IEnumerable<IAssemblyData> GetNextBatch(int size)
 		{
+			IEnumerable<IAssemblyData> data = new IAssemblyData[] { };
 			if (this.OnGetNextBatch != null) this.OnGetNextBatch(size);
-			return this.Jobs.Keys.Take(size);
+
+			if (this.Batches.TryDequeue(out data))
+			{
+				return data;
+			}
+			else
+			{
+				return new IAssemblyData[] { };
+			}
 		}
 
 		public int StartBatch(IEnumerable<Guid> ids, string machineName, Guid instanceId)
 		{
+			Func<Guid, FinishResult, FinishResult> fn = (key, v) => { return new FinishResult() { Id = v.Id, Status = FinishStatus.New }; };
+
+			foreach (var id in ids)
+			{
+				this.Statuses.AddOrUpdate(id, new FinishResult() { Id = id, Status = FinishStatus.New }, fn);
+			}
+
 			if (this.OnBatchStarted != null) this.OnBatchStarted(ids, machineName, instanceId);
 			return 1;
 		}
