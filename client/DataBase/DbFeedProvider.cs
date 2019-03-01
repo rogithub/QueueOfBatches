@@ -31,7 +31,7 @@ namespace DataBase
 			}
 			else
 			{
-				return AddJobs(batch.ToArray());
+				return batch.Count() <= 0 ? 0 : AddJobs(batch.ToArray());
 			}
 		}
 
