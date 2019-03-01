@@ -28,6 +28,7 @@ namespace ServiceTest
 			int numberA = 1;
 			int numberB = 2;
 			int expectedResult = numberA + numberB;
+			int maxExpectedSecondsToRunAll = 3;
 
 			Action<FinishResult, IAssemblyData> onSuccess = (r, d) =>
 			{
@@ -56,7 +57,7 @@ namespace ServiceTest
 			watch.Stop();
 
 			var span = watch.Elapsed;
-			Assert.IsTrue(span.TotalSeconds < 3);
+			Assert.IsTrue(span.TotalSeconds < maxExpectedSecondsToRunAll);
 
 			Assert.AreEqual(tasksToCreate, tasks.Count());
 			Assert.AreEqual(tasksToCreate, jobs.Count());
