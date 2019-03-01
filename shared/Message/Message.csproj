@@ -45,11 +45,11 @@
     <Compile Include="FinishResult.cs" />
     <Compile Include="IAssemblyData.cs" />
     <Compile Include="IFeedProvider.cs" />
-    <Compile Include="IMessageTask.cs" />
-    <Compile Include="ITaskItem.cs" />
+    <Compile Include="ITask.cs" />
+    <Compile Include="ITaskInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FinishStatus.cs" />
-    <Compile Include="AssemblyRunTask.cs" />
+    <Compile Include="RunAssemblyTask.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

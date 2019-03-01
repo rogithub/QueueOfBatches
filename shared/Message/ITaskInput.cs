@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Message
 {
-	public interface ITaskItem
+	public interface ITaskInput
 	{
 		Guid Id { get; }
 		int TimeoutMilliseconds { get; }

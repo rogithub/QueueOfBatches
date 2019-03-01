@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Message
 {
-	public class AssemblyRunTask : IMessageTask<IAssemblyData, FinishResult>
+	public class RunAssemblyTask : ITask<IAssemblyData, FinishResult>
 	{
 		public FinishResult OnSuccess(IAssemblyData msg)
 		{

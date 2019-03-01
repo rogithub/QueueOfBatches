@@ -44,7 +44,7 @@ namespace ServiceTest
 
 			IFeedProvider<IAssemblyData, FinishResult> provider = new FeedProviderMock(jobs, null, null, null, null);
 			var c = new CancellationTokenSource();
-			var task = new AssemblyRunTaskMock(onSuccess, onCancel, onError);
+			var task = new RunAssemblyTaskMock(onSuccess, onCancel, onError);
 			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, pollInterval, batchSize, instanceId, instanceName, listener);
 
 			var watch = Stopwatch.StartNew();

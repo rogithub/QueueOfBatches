@@ -14,7 +14,7 @@ module Agent =
 
     type Message<'input, 'output> = 'input * AsyncReplyChannel<'output>
     type InitData<'input, 'output> = {
-        Task: IMessageTask<'input, 'output>;
+        Task: ITask<'input, 'output>;
         Token: CancellationToken;
         Provider: IFeedProvider<'input, 'output>;
         PollInterval: int;
@@ -23,7 +23,7 @@ module Agent =
         InstanceName: string;
         Listener: TraceListener; }
 
-    type Service<'input, 'output> when 'input :> ITaskItem (initData: InitData<'input, 'output>) =
+    type Service<'input, 'output> when 'input :> ITaskInput (initData: InitData<'input, 'output>) =
         let InitData = initData
         let mutable Status = NotStarted
 

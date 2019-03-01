@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Message
 {
-	public interface IMessageTask<input, output>
+	public interface ITask<input, output>
 	{
 		output OnSuccess(input input);
 		output OnError(input input, Exception ex);
