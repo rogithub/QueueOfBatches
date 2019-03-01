@@ -108,6 +108,4 @@ module Agent =
             | _ -> () // do nothing
 
         member this.AddJobs jobs =
-            let chunks = jobs |> Array.chunkBySize InitData.BatchSize
-            [for chunk in chunks do InitData.Provider.AddJobs(chunk) |> ignore ] |> ignore
-            chunks.Length
+            InitData.Provider.AddJobs(jobs)

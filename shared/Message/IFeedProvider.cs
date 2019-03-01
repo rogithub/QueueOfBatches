@@ -10,7 +10,7 @@ namespace Message
 	{
 		IEnumerable<T> GetNextBatch(int size);
 		int StartBatch(IEnumerable<Guid> ids, string machineName, Guid instanceId);
-		int AddJobs(T[] jobs);
+		int AddJobs(IEnumerable<T> jobs);
 		int CompleteJob(TResult result);
 	}
 }

@@ -31,11 +31,19 @@ namespace Console
 
 		static void Main(string[] args)
 		{
-			int count = 100;
-			System.Console.WriteLine("Creating {0} files...", count);
-			DbFeedProvider.Save(CreateFile(count).ToArray());
-			System.Console.WriteLine("Done.", count);
-			System.Console.ReadKey();
+			bool continueRunning = true;
+			while (continueRunning)
+			{
+				System.Console.WriteLine("Items to create (if not parseable int will exit)");
+				string value = System.Console.ReadLine();
+				int itemsToCreate = 0;
+				continueRunning = int.TryParse(value, out itemsToCreate);
+				if (continueRunning)
+				{
+					DbFeedProvider.Save(CreateFile(itemsToCreate).ToArray());
+					System.Console.WriteLine("Created: {0}", itemsToCreate);
+				}
+			}
 		}
 	}
 }

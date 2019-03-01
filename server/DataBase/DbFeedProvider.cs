@@ -56,7 +56,30 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
-		public int AddJobs(IAssemblyData[] rows)
+		public int AddJobs(IEnumerable<IAssemblyData> batch)
+		{
+			/*
+			 * https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?view=sql-server-2017
+				Parameters per user-defined function 		2,100
+				So 2100/8 = 262.5
+			 */
+			int batchSize = 262;
+			if (batch.Count() > batchSize)
+			{
+				int count = 0;
+				foreach (var rows in batch.Batch(batchSize))
+				{
+					count += AddJobs(rows.ToArray());
+				}
+
+				return count;
+			}
+			else
+			{
+				return AddJobs(batch.ToArray());
+			}
+		}
+		private int AddJobs(IAssemblyData[] rows)
 		{
 			StringBuilder sb = new StringBuilder();
 			List<SqlParameter> allParams = new List<SqlParameter>();
