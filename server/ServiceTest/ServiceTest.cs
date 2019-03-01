@@ -25,7 +25,6 @@ namespace ServiceTest
 			int counter = 0;
 			int itemsTimoutMs = -1;
 			int tasksToCreate = 10000;
-			int timeToWaitForAllToCompleteMs = 1000;
 			int numberA = 1;
 			int numberB = 2;
 			int expectedResult = numberA + numberB;
@@ -47,15 +46,21 @@ namespace ServiceTest
 			var c = new CancellationTokenSource();
 			var task = new AssemblyRunTaskMock(onSuccess, onCancel, onError);
 			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, pollInterval, batchSize, instanceId, instanceName, listener);
+
+			var watch = Stopwatch.StartNew();
 			var service = new Agent.Service<IAssemblyData, FinishResult>(data);
 			service.Start();
 
 			IEnumerable<IAssemblyData> tasks = TaskFactory.Create(Enumerable.Repeat(sum, tasksToCreate), Enumerable.Repeat(new int[] { numberA, numberB }, tasksToCreate), itemsTimoutMs);
 			service.AddJobs(tasks.ToArray());
+			watch.Stop();
 
-			// wait one second to finish
-			Thread.Sleep(timeToWaitForAllToCompleteMs);
+			var span = watch.Elapsed;
+			Assert.IsTrue(span.TotalSeconds < 5);
+
 			Assert.AreEqual(tasksToCreate, tasks.Count());
+			Assert.AreEqual(tasksToCreate, jobs.Count());
+			Assert.AreEqual(tasksToCreate, jobs.Select(j => j.Value.Status == FinishStatus.Succes).Count());
 			Assert.AreEqual(0, counter);
 		}
 	}
