@@ -21,6 +21,9 @@ namespace DataBase
 				(@guid{0},0,GETDATE(),@timeoutms{0},@assembly{0},@paramTypes{0},@consParams{0},@methodParams{0},@fullyQName{0},@method{0});";
 			for (int i = 0; i < rows.Length; i++)
 			{
+
+				var ser = Serializer.Serialize(rows);
+
 				sb.AppendFormat(text, i);
 				allParams.Add(Db.GetParam(string.Format("@guid{0}", i), SqlDbType.UniqueIdentifier, rows[i].Id));
 				allParams.Add(Db.GetParam(string.Format("@timeoutms{0}", i), SqlDbType.Int, rows[i].TimeoutMilliseconds <= 0 ? -1 : rows[i].TimeoutMilliseconds));
@@ -31,6 +34,8 @@ namespace DataBase
 				allParams.Add(Db.GetParam(string.Format("@fullyQName{0}", i), SqlDbType.VarChar, rows[i].FullyQualifiedName));
 				allParams.Add(Db.GetParam(string.Format("@method{0}", i), SqlDbType.VarChar, rows[i].MethodToRun));
 			}
+
+
 
 			SqlCommand cmd = Db.GetCommand(sb.ToString(), CommandType.Text);
 			cmd.Parameters.AddRange(allParams.ToArray());

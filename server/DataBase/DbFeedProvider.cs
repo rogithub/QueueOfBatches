@@ -90,7 +90,16 @@ namespace DataBase
 			SqlCommand cmd = Db.GetCommand(text, CommandType.Text);
 
 			cmd.Parameters.Add(Db.GetParam("@finishStatus", SqlDbType.Int, result.Status));
-			cmd.Parameters.Add(Db.GetParam("@result", SqlDbType.Xml, Serializer.XmlSerialize(result.Result)));
+
+			if (result.Result == null)
+			{
+				cmd.Parameters.Add(Db.GetParam("@result", SqlDbType.Xml, DBNull.Value));
+			}
+			else
+			{
+				cmd.Parameters.Add(Db.GetParam("@result", SqlDbType.Xml, Serializer.XmlSerialize(result.Result)));
+			}
+
 			cmd.Parameters.Add(Db.GetParam("@exception", SqlDbType.VarChar, result.Exception == null ? string.Empty : result.Exception.ToString()));
 			cmd.Parameters.Add(Db.GetParam("@id", SqlDbType.UniqueIdentifier, result.Id));
 
