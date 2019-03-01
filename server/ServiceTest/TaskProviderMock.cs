@@ -1,4 +1,4 @@
-﻿using Message;
+﻿using Tasks;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,14 +6,14 @@ using System.Linq;
 
 namespace ServiceTest
 {
-	public class FeedProviderMock : IFeedProvider<IAssemblyData, FinishResult>
+	public class TaskProviderMock : ITaskProvider<IAssemblyData, FinishResult>
 	{
 		private Action<IEnumerable<IAssemblyData>> OnJobsAdded;
 		private Action<FinishResult> OnJobCompleted;
 		private Action<int> OnGetNextBatch;
 		private Action<IEnumerable<Guid>, string, Guid> OnBatchStarted;
 
-		public FeedProviderMock(ConcurrentDictionary<IAssemblyData, FinishResult> jobs,
+		public TaskProviderMock(ConcurrentDictionary<IAssemblyData, FinishResult> jobs,
 			Action<IEnumerable<IAssemblyData>> onJobsAdded = null,
 			Action<FinishResult> onJobCompleted = null,
 			Action<int> onGetNextBatch = null,
@@ -26,7 +26,7 @@ namespace ServiceTest
 			this.OnBatchStarted = onBatchStarted;
 		}
 		public ConcurrentDictionary<IAssemblyData, FinishResult> Jobs { get; set; }
-		public int AddJobs(IEnumerable<IAssemblyData> jobs)
+		public int AddTasks(IEnumerable<IAssemblyData> jobs)
 		{
 			jobs.Aggregate(this.Jobs, (dic, j) =>
 			{
@@ -39,7 +39,7 @@ namespace ServiceTest
 			return this.Jobs.Count;
 		}
 
-		public int CompleteJob(FinishResult result)
+		public int CompleteTask(FinishResult result)
 		{
 			var job = this.Jobs.Keys.First(it => it.Id == result.Id);
 			this.Jobs[job] = result;

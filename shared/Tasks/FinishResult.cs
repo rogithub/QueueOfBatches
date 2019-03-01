@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Message
+namespace Tasks
 {
 	public class FinishResult
 	{

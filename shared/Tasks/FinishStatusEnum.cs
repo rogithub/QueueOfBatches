@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Message
+namespace Tasks
 {
-	public interface ITaskInput
+	public enum FinishStatus
 	{
-		Guid Id { get; }
-		int TimeoutMilliseconds { get; }
+		New = 0,
+		Succes,
+		Error,
+		Canceled
 	}
 }

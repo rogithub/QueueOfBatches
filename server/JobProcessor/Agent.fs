@@ -1,10 +1,9 @@
 namespace JobProcessor
 module Agent =
 
-    open Message
+    open Tasks
     open System
     open System.Threading
-    open System.Diagnostics
     open System.Diagnostics
 
     type Status =
@@ -16,7 +15,7 @@ module Agent =
     type InitData<'input, 'output> = {
         Task: ITask<'input, 'output>;
         Token: CancellationToken;
-        Provider: IFeedProvider<'input, 'output>;
+        Provider: ITaskProvider<'input, 'output>;
         PollInterval: int;
         BatchSize: int;
         InstanceId: Guid;
@@ -45,9 +44,9 @@ module Agent =
         member private this.Process data =
             let messageAsync = this.TaskRunner.PostAndAsyncReply((fun replyChannel -> data, replyChannel), data.TimeoutMilliseconds);
             Async.StartWithContinuations(messageAsync,
-                (fun  result -> InitData.Provider.CompleteJob(result) |> ignore),
-                (fun   error -> InitData.Provider.CompleteJob(initData.Task.OnError(data, error)) |> ignore),
-                (fun     can -> InitData.Provider.CompleteJob(initData.Task.OnCancell(data, can)) |> ignore), InitData.Token)
+                (fun  result -> InitData.Provider.CompleteTask(result) |> ignore),
+                (fun   error -> InitData.Provider.CompleteTask(initData.Task.OnError(data, error)) |> ignore),
+                (fun     can -> InitData.Provider.CompleteTask(initData.Task.OnCancell(data, can)) |> ignore), InitData.Token)
 
 
         member private this.FeedSource = MailboxProcessor<AsyncReplyChannel<_>>.Start((fun inbox ->
@@ -108,4 +107,4 @@ module Agent =
             | _ -> () // do nothing
 
         member this.AddJobs jobs =
-            InitData.Provider.AddJobs(jobs)
+            InitData.Provider.AddTasks(jobs)

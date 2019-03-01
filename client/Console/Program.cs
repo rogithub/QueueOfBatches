@@ -1,6 +1,6 @@
 ﻿using DataBase;
 using Examples;
-using Message;
+using Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +40,7 @@ namespace Console
 				continueRunning = int.TryParse(value, out itemsToCreate);
 				if (continueRunning)
 				{
-					DbFeedProvider.Save(CreateFile(itemsToCreate).ToArray());
+					DbTaskProvider.Save(CreateFile(itemsToCreate).ToArray());
 					System.Console.WriteLine("Created: {0}", itemsToCreate);
 				}
 			}

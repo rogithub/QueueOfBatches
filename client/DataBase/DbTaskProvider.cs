@@ -1,15 +1,14 @@
-﻿using Message;
-using System;
+﻿
 using System.Collections.Generic;
 using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
-using System.Reflection;
 using System.Text;
+using Tasks;
 
 namespace DataBase
 {
-	public static class DbFeedProvider
+	public static class DbTaskProvider
 	{
 		public static int Save(IEnumerable<IAssemblyData> batch)
 		{

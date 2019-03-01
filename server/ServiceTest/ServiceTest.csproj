@@ -54,16 +54,16 @@
     <Compile Include="TaskFactory.cs" />
     <Compile Include="ServiceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FeedProviderMock.cs" />
+    <Compile Include="TaskProviderMock.cs" />
     <Compile Include="AssemblyRunTaskTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\shared\Message\Message.csproj">
-      <Project>{f437e047-94a7-4150-a63b-cbf3bc708eef}</Project>
-      <Name>Message</Name>
+    <ProjectReference Include="..\..\shared\Tasks\Tasks.csproj">
+      <Project>{0adad786-d9b8-42d2-a38d-3af78f00a558}</Project>
+      <Name>Tasks</Name>
     </ProjectReference>
     <ProjectReference Include="..\JobProcessor\JobProcessor.fsproj">
       <Project>{52469c18-5c2e-48b5-bd6b-fe17e33262a4}</Project>

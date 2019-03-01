@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Message
+namespace Tasks
 {
 	public interface ITask<input, output>
 	{

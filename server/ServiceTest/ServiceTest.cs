@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using JobProcessor;
-using Message;
+using Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -42,7 +42,7 @@ namespace ServiceTest
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
 			Func<int, int, int> sum = (a, b) => a + b;
 
-			IFeedProvider<IAssemblyData, FinishResult> provider = new FeedProviderMock(jobs, null, null, null, null);
+			ITaskProvider<IAssemblyData, FinishResult> provider = new TaskProviderMock(jobs, null, null, null, null);
 			var c = new CancellationTokenSource();
 			var task = new RunAssemblyTaskMock(onSuccess, onCancel, onError);
 			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, pollInterval, batchSize, instanceId, instanceName, listener);

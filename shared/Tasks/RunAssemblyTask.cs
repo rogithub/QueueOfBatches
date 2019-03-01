@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Message
+namespace Tasks
 {
 	public class RunAssemblyTask : ITask<IAssemblyData, FinishResult>
 	{

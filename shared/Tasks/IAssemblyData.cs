@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Message
+namespace Tasks
 {
 	//https://stackoverflow.com/questions/14479074/c-sharp-reflection-load-assembly-and-invoke-a-method-if-it-exists
 	public interface IAssemblyData : ITaskInput

@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Message
+namespace Tasks
 {
-	public interface IFeedProvider<T, TResult>
+	public interface ITaskProvider<T, TResult>
 	{
 		IEnumerable<T> GetNextBatch(int size);
 		int StartBatch(IEnumerable<Guid> ids, string machineName, Guid instanceId);
-		int AddJobs(IEnumerable<T> jobs);
-		int CompleteJob(TResult result);
+		int AddTasks(IEnumerable<T> jobs);
+		int CompleteTask(TResult result);
 	}
 }

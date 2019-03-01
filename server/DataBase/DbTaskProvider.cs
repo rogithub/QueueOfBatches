@@ -1,4 +1,4 @@
-﻿using Message;
+﻿using Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DataBase
 {
-	public class DbFeedProvider : IFeedProvider<IAssemblyData, FinishResult>
+	public class DbTaskProvider : ITaskProvider<IAssemblyData, FinishResult>
 	{
 		public IEnumerable<IAssemblyData> GetNextBatch(int batchSize)
 		{
@@ -56,7 +56,7 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
-		public int AddJobs(IEnumerable<IAssemblyData> batch)
+		public int AddTasks(IEnumerable<IAssemblyData> batch)
 		{
 			/*
 			 * https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?view=sql-server-2017
@@ -69,17 +69,17 @@ namespace DataBase
 				int count = 0;
 				foreach (var rows in batch.Batch(batchSize))
 				{
-					count += AddJobs(rows.ToArray());
+					count += AddTasks(rows.ToArray());
 				}
 
 				return count;
 			}
 			else
 			{
-				return batch.Count() <= 0 ? 0 : AddJobs(batch.ToArray());
+				return batch.Count() <= 0 ? 0 : AddTasks(batch.ToArray());
 			}
 		}
-		private int AddJobs(IAssemblyData[] rows)
+		private int AddTasks(IAssemblyData[] rows)
 		{
 			StringBuilder sb = new StringBuilder();
 			List<SqlParameter> allParams = new List<SqlParameter>();
@@ -106,7 +106,7 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
-		public int CompleteJob(FinishResult result)
+		public int CompleteTask(FinishResult result)
 		{
 			List<SqlParameter> allParams = new List<SqlParameter>();
 			string text = @"UPDATE T_FEED_QUEUE SET F_DATE_COMPLETED=GETDATE(), F_STATUS=@finishStatus, F_RESULT=@result, F_EXCEPTION=@exception WHERE F_GUID=@id";

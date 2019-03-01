@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Message
+namespace Tasks
 {
 	[Serializable]
 	public class AssemblyData : IAssemblyData
