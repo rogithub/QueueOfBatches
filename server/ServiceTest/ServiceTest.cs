@@ -56,7 +56,7 @@ namespace ServiceTest
 			watch.Stop();
 
 			var span = watch.Elapsed;
-			Assert.IsTrue(span.TotalSeconds < 5);
+			Assert.IsTrue(span.TotalSeconds < 3);
 
 			Assert.AreEqual(tasksToCreate, tasks.Count());
 			Assert.AreEqual(tasksToCreate, jobs.Count());

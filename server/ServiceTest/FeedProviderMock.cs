@@ -8,13 +8,13 @@ namespace ServiceTest
 {
 	public class FeedProviderMock : IFeedProvider<IAssemblyData, FinishResult>
 	{
-		private Action<IAssemblyData[]> OnJobsAdded;
+		private Action<IEnumerable<IAssemblyData>> OnJobsAdded;
 		private Action<FinishResult> OnJobCompleted;
 		private Action<int> OnGetNextBatch;
 		private Action<IEnumerable<Guid>, string, Guid> OnBatchStarted;
 
 		public FeedProviderMock(ConcurrentDictionary<IAssemblyData, FinishResult> jobs,
-			Action<IAssemblyData[]> onJobsAdded = null,
+			Action<IEnumerable<IAssemblyData>> onJobsAdded = null,
 			Action<FinishResult> onJobCompleted = null,
 			Action<int> onGetNextBatch = null,
 			Action<IEnumerable<Guid>, string, Guid> onBatchStarted = null)
@@ -26,7 +26,7 @@ namespace ServiceTest
 			this.OnBatchStarted = onBatchStarted;
 		}
 		public ConcurrentDictionary<IAssemblyData, FinishResult> Jobs { get; set; }
-		public int AddJobs(IAssemblyData[] jobs)
+		public int AddJobs(IEnumerable<IAssemblyData> jobs)
 		{
 			jobs.Aggregate(this.Jobs, (dic, j) =>
 			{
