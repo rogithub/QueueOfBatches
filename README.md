@@ -1,1 +1,12 @@
-# feedagent
+# FeedAgent
+This is the implementation of a client/server model for processing tasks in multithreaded batches.
+
+It is implemented using .Net, and it is divided into two Visual Studio solutions:
+  - /client/Client.sln
+  - /server/Server.sln
+
+### Client Part
+It creates an executable console application that allows user to insert sample tasks to be executed later for the server application. Tasks will be inserted in an existing table (see /DBStructure folder).
+
+### Server Part
+It contains a console application that reads and executes tasks in multithreaded batches from the database (other sources are also possible described later on ITaskProvider topic).
