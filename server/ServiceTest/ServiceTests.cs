@@ -103,6 +103,11 @@ namespace ServiceTest
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
+				Assert.IsNotNull(d);
+				Assert.IsNull(r.Exception);
+				Assert.AreEqual(FinishStatus.Succes, r.Status);
+				Assert.AreEqual(3, r.Result);
+				Assert.AreEqual(r.Id, d.Id);
 				Interlocked.Increment(ref counter);
 				Thread.Sleep(1000 * 60 * 60);
 			};
@@ -162,6 +167,11 @@ namespace ServiceTest
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
+				Assert.IsNotNull(d);
+				Assert.IsNull(r.Exception);
+				Assert.AreEqual(FinishStatus.Succes, r.Status);
+				Assert.AreEqual(3, r.Result);
+				Assert.AreEqual(r.Id, d.Id);
 				Thread.Sleep(1000 * 60 * 60); //wait one hour for cancelation
 			};
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) =>
@@ -195,6 +205,11 @@ namespace ServiceTest
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
+				Assert.IsNotNull(d);
+				Assert.IsNull(r.Exception);
+				Assert.AreEqual(FinishStatus.Succes, r.Status);
+				Assert.AreEqual(3, r.Result);
+				Assert.AreEqual(r.Id, d.Id);
 				throw new Exception("Application Exception");
 			};
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) =>
