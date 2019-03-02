@@ -16,7 +16,7 @@ Here are the main components.
 
   - TaskRunner. It is an Fsharp wrapper around MailboxProcessor class that is the core part of the server. It takes tasks in the form of ITask interface and executes them in multithreaded batches. 
   
-    **Important:** Only one instance of the server per ITaskProvider can run at a given time. You can run multiple instances as long as they have different sources. Client app on the other hand can have as many instances as you want.
+    **Important:** Only one instance of the Server per ITaskProvider can run at a given time. You can run multiple instances as long as they have different sources. Client app on the other hand can have as many instances as you want.
   
   - ITask. It consists of three methods Run, OnError, OnCancel. Run is the code that will be executed by TaskRunner, OnError and OnCancel will be called if required.
   
