@@ -116,6 +116,7 @@ namespace ServiceTest
 			Assert.AreEqual(tasksToCreate, tasksCreated.Length);
 
 			Assert.IsTrue(counter > 0);                             // at least some should be started by now
+			Assert.IsTrue(counter < tasksToCreate);                 // not all should be started by now
 		}
 
 		[TestMethod]
