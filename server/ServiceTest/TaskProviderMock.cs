@@ -52,10 +52,10 @@ namespace ServiceTest
 		public IEnumerable<IAssemblyData> GetNextBatch(int size)
 		{
 			IEnumerable<IAssemblyData> data = new IAssemblyData[] { };
-			if (this.OnGetNextBatch != null) this.OnGetNextBatch(size);
 
 			if (this.Batches.TryDequeue(out data))
 			{
+				if (this.OnGetNextBatch != null) this.OnGetNextBatch(size);
 				return data;
 			}
 			else

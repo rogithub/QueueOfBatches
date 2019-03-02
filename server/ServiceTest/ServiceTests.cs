@@ -153,5 +153,39 @@ namespace ServiceTest
 
 			Assert.AreEqual(tasksToCreate, counter);
 		}
+
+		[TestMethod]
+		public void ErroredTasks()
+		{
+			int counter = 0; int pollInterval = 0; int batchSize = 10;
+			int tasksToCreate = 10;
+
+			Action<FinishResult> onJobCompleted = null;
+			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
+			Action<FinishResult, IAssemblyData> onSuccess = (r, d) =>
+			{
+				throw new Exception("Application Exception");
+			};
+			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) =>
+			{
+				Assert.IsNotNull(e);
+				Assert.IsNotNull(f.Exception);
+				Assert.AreEqual(FinishStatus.Error, f.Status);
+				Assert.IsNull(f.Result);
+				Assert.AreEqual(d.Id, f.Id);
+				Interlocked.Increment(ref counter);
+			};
+			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, onSuccess, onCancel, onError);
+
+			factory.Service.Start();
+
+			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
+
+			Thread.Sleep(1000 * 10); //wait for batch to start
+
+			Assert.AreEqual(tasksToCreate, tasksCreated.Length);
+
+			Assert.AreEqual(tasksToCreate, counter);
+		}
 	}
 }
