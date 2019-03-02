@@ -9,7 +9,7 @@ It is implemented using .Net, and it is divided into two Visual Studio solutions
 It creates an executable console application that allows user to insert sample tasks to be executed later for the server application. Tasks will be inserted in an existing table (see /DBStructure folder).
 
 ### Server Part
-It contains a console application that reads and executes tasks in multithreaded batches from the database (other sources are also possible described later on IQueueProvider topic).
+It contains a console application that reads and executes tasks in multithreaded batches from the database (other sources are also possible described later on ITaskQueue topic).
 
 ## Tasks Components
 Here are the main components.
