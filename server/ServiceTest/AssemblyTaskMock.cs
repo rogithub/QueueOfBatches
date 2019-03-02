@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace ServiceTest
 {
-	public class RunAssemblyTaskMock : RunAssemblyTask, ITask<IAssemblyData, FinishResult>
+	public class AssemblyTaskMock : AssemblyTask, ITask<IAssemblyData, FinishResult>
 	{
 		private Action<FinishResult, IAssemblyData> OnRunExecuted;
 		private Action<FinishResult, IAssemblyData, Exception> OnCancelExecuted;
 		private Action<FinishResult, IAssemblyData, Exception> OnErrorExecuted;
-		public RunAssemblyTaskMock(Action<FinishResult, IAssemblyData> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
+		public AssemblyTaskMock(Action<FinishResult, IAssemblyData> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
 		{
 			this.OnRunExecuted = onRun;
 			this.OnCancelExecuted = onCancel;

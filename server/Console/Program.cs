@@ -16,7 +16,7 @@ namespace Console
 			ConsoleTraceListener listener = new ConsoleTraceListener();
 			ITaskProvider<IAssemblyData, FinishResult> provider = new DbTaskProvider();
 			var c = new CancellationTokenSource();
-			var task = new RunAssemblyTask();
+			var task = new AssemblyTask();
 			var data = new Agent.InitData<IAssemblyData, FinishResult>(task, c.Token, provider, AppSettings.MillisecondsToBeIdle, AppSettings.BatchSize, Guid.NewGuid(), Environment.MachineName, listener);
 			var service = new Agent.Service<IAssemblyData, FinishResult>(data);
 

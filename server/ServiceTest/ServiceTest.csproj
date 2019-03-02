@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IntAssemblyMethodMock.cs" />
-    <Compile Include="RunAssemblyTaskMock.cs" />
+    <Compile Include="AssemblyTaskMock.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="TaskFactory.cs" />
     <Compile Include="ServiceTests.cs" />

@@ -17,7 +17,7 @@ namespace ServiceTest
 			this.PollInterval = pollInterval;
 			this.BatchSize = batchSize;
 			this.TokenSource = new CancellationTokenSource();
-			var task = new RunAssemblyTaskMock(onRun, onCancel, onError);
+			var task = new AssemblyTaskMock(onRun, onCancel, onError);
 			this.ServiceData = new Agent.InitData<IAssemblyData, FinishResult>(task, this.TokenSource.Token, this.Provider, this.PollInterval, this.BatchSize, this.InstanceId, this.InstanceName, this.Listener);
 			this.Service = new Agent.Service<IAssemblyData, FinishResult>(this.ServiceData);
 		}
