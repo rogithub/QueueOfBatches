@@ -31,8 +31,13 @@ module Agent =
             let rec loop() =
                 async {
                     let! (token, input, channel) = inbox.Receive();
-                    channel.Reply(initData.Task.Run(input, token));
-                    do! loop()
+                    try
+                        channel.Reply(initData.Task.Run(input, token));
+                        do! loop()
+                    with
+                    | ex ->
+                        channel.Reply(initData.Task.OnError(input, ex));
+                        do! loop()
                 }
             loop()), InitData.Token)
 
