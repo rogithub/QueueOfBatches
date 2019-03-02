@@ -54,10 +54,6 @@ namespace DataBase
 		/// <returns></returns>
 		public static byte[] SerializeAssembly()
 		{
-
-			//string assemblyPath = @"C:\Users\43918\Documents\code\tasksqueue\client\Examples\FileCreator.cs";
-			//string[] lines = File.ReadAllLines(assemblyPath, Encoding.UTF8);
-
 			var compilerOptions = new Dictionary<string, string> { { "CompilerVersion", "v4.0" } };
 			CSharpCodeProvider provider = new CSharpCodeProvider(compilerOptions);
 
@@ -70,7 +66,6 @@ namespace DataBase
 			};
 			parameters.ReferencedAssemblies.Add("System.dll");
 
-			//CompilerResults results = provider.CompileAssemblyFromSource(compilerParams, assemblyPath);
 			ICodeCompiler compiler = provider.CreateCompiler();
 			CompilerResults results = compiler.CompileAssemblyFromSource(parameters, StringFile());
 
