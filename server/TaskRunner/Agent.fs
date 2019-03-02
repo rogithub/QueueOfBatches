@@ -33,7 +33,7 @@ module Agent =
                     let! (msg, channel) = inbox.Receive();
 
                     try
-                        channel.Reply(initData.Task.OnSuccess(msg));
+                        channel.Reply(initData.Task.Run(msg));
                         do! loop()
                     with
                     | ex ->

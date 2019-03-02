@@ -5,7 +5,7 @@ namespace Tasks
 {
 	public class RunAssemblyTask : ITask<IAssemblyData, FinishResult>
 	{
-		public FinishResult OnSuccess(IAssemblyData msg)
+		public FinishResult Run(IAssemblyData msg)
 		{
 			try
 			{

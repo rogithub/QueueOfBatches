@@ -9,20 +9,20 @@ namespace ServiceTest
 {
 	public class RunAssemblyTaskMock : RunAssemblyTask, ITask<IAssemblyData, FinishResult>
 	{
-		private Action<FinishResult, IAssemblyData> OnSuccessExecuted;
+		private Action<FinishResult, IAssemblyData> OnRunExecuted;
 		private Action<FinishResult, IAssemblyData, Exception> OnCancelExecuted;
 		private Action<FinishResult, IAssemblyData, Exception> OnErrorExecuted;
-		public RunAssemblyTaskMock(Action<FinishResult, IAssemblyData> onSuccess = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
+		public RunAssemblyTaskMock(Action<FinishResult, IAssemblyData> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
 		{
-			this.OnSuccessExecuted = onSuccess;
+			this.OnRunExecuted = onRun;
 			this.OnCancelExecuted = onCancel;
 			this.OnErrorExecuted = onError;
 		}
 
-		public new FinishResult OnSuccess(IAssemblyData input)
+		public new FinishResult Run(IAssemblyData input)
 		{
-			var result = base.OnSuccess(input);
-			if (this.OnSuccessExecuted != null) this.OnSuccessExecuted(result, input);
+			var result = base.Run(input);
+			if (this.OnRunExecuted != null) this.OnRunExecuted(result, input);
 			return result;
 		}
 		public new FinishResult OnCancell(IAssemblyData input, Exception ex)

@@ -11,13 +11,13 @@ namespace ServiceTest
 {
 	public class ServiceFactory
 	{
-		public ServiceFactory(Action<FinishResult> onJobCompleted, int pollInterval, int batchSize, Action<FinishResult, IAssemblyData> onSuccess = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
+		public ServiceFactory(Action<FinishResult> onJobCompleted, int pollInterval, int batchSize, Action<FinishResult, IAssemblyData> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
 		{
 			this.Provider = new TaskProviderMock(null, onJobCompleted, null, null);
 			this.PollInterval = pollInterval;
 			this.BatchSize = batchSize;
 			this.TokenSource = new CancellationTokenSource();
-			var task = new RunAssemblyTaskMock(onSuccess, onCancel, onError);
+			var task = new RunAssemblyTaskMock(onRun, onCancel, onError);
 			this.ServiceData = new Agent.InitData<IAssemblyData, FinishResult>(task, this.TokenSource.Token, this.Provider, this.PollInterval, this.BatchSize, this.InstanceId, this.InstanceName, this.Listener);
 			this.Service = new Agent.Service<IAssemblyData, FinishResult>(this.ServiceData);
 		}
@@ -33,7 +33,7 @@ namespace ServiceTest
 		public int DefaultB = 2;
 		public TaskProviderMock Provider { get; private set; }
 		Func<int, int, int> sum = (a, b) => a + b;
-		public static Action<FinishResult, IAssemblyData> onSuccessDefaultTests = (r, d) =>
+		public static Action<FinishResult, IAssemblyData> onRunDefaultTests = (r, d) =>
 		{
 			Assert.IsNotNull(d);
 			Assert.IsNull(r.Exception);
