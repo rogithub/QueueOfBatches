@@ -57,19 +57,6 @@ namespace ServiceTest
 		public int DefaultB = 2;
 		public TaskProviderMock Provider { get; private set; }
 		Func<int, int, int> sum = (a, b) => a + b;
-		public static Action<FinishResult, IAssemblyData, CancellationTokenSource> onRunDefaultTests = (r, d, ts) =>
-		{
-			Assert.IsNotNull(d);
-			Assert.IsNull(r.Exception);
-			Assert.AreEqual(FinishStatus.Succes, r.Status);
-			Assert.AreEqual(3, r.Result);
-			Assert.AreEqual(r.Id, d.Id);
-		};
-
-		public int GetDefaultExpectedResult()
-		{
-			return this.DefaultA + this.DefaultB;
-		}
 
 		public Guid[] AddTasks(int count, int itemsTimoutMs = -1)
 		{

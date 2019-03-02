@@ -14,14 +14,18 @@ namespace ServiceTest
 			int counter = 0; int pollInterval = 0; int batchSize = 10;
 			int tasksToCreate = 10000;
 
-			Action<FinishResult> onJobCompleted = (r) =>
+			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
-				Assert.AreEqual(r.Status, FinishStatus.Succes);
+				Assert.IsNotNull(d);
+				Assert.IsNull(r.Exception);
+				Assert.AreEqual(FinishStatus.Succes, r.Status);
+				Assert.AreEqual(3, r.Result);
+				Assert.AreEqual(r.Id, d.Id);
 				Interlocked.Increment(ref counter);
 			};
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
-			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, ServiceFactory.onRunDefaultTests, onCancel, onError);
+			ServiceFactory factory = new ServiceFactory(pollInterval, batchSize, onRun, onCancel, onError);
 
 			factory.Service.Start();
 			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
@@ -37,15 +41,19 @@ namespace ServiceTest
 			int counter = 0; int pollInterval = 0; int batchSize = 10;
 			int tasksToCreate = 10000;
 
-			Action<FinishResult> onJobCompleted = (r) =>
+			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
-				Assert.AreEqual(r.Status, FinishStatus.Succes);
+				Assert.IsNotNull(d);
+				Assert.IsNull(r.Exception);
+				Assert.AreEqual(FinishStatus.Succes, r.Status);
+				Assert.AreEqual(3, r.Result);
+				Assert.AreEqual(r.Id, d.Id);
 				Interlocked.Increment(ref counter);
 			};
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
 
-			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, ServiceFactory.onRunDefaultTests, onCancel, onError);
+			ServiceFactory factory = new ServiceFactory(pollInterval, batchSize, onRun, onCancel, onError);
 
 			// Start for the first time
 			factory.Service.Start();
