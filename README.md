@@ -1,4 +1,4 @@
-# Queue of Batches
+# Queue of Tasks
 This is the implementation of a client/server model for processing generic tasks in multithreaded fashion.
 
 It is implemented using .Net, and it is divided into two Visual Studio solutions:
