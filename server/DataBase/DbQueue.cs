@@ -9,9 +9,9 @@ using System.Text;
 
 namespace DataBase
 {
-	public class DbTaskProvider : ITaskProvider<IAssemblyData, FinishResult>
+	public class DbQueue : ITaskQueue<IAssemblyData, FinishResult>
 	{
-		public IEnumerable<IAssemblyData> GetNextBatch(int batchSize)
+		public IEnumerable<IAssemblyData> Dequeue(int batchSize)
 		{
 			string text = string.Format("SELECT TOP {0} * FROM T_FEED_QUEUE WHERE F_DATE_STARTED IS NULL ORDER BY F_DATE_CREATED", batchSize);
 
@@ -40,7 +40,7 @@ namespace DataBase
 			return list;
 		}
 
-		public int StartBatch(IEnumerable<Guid> rows, string machineName, Guid instanceId)
+		public int Start(IEnumerable<Guid> rows, string machineName, Guid instanceId)
 		{
 			if (rows.Count() == 0) return 0;
 
@@ -56,7 +56,7 @@ namespace DataBase
 			return Db.ExecuteNonQuery(cmd);
 		}
 
-		public int AddTasks(IEnumerable<IAssemblyData> batch)
+		public int Enqueue(IEnumerable<IAssemblyData> batch)
 		{
 			/*
 			 * https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?view=sql-server-2017
@@ -69,17 +69,17 @@ namespace DataBase
 				int count = 0;
 				foreach (var rows in batch.Batch(batchSize))
 				{
-					count += AddTasks(rows.ToArray());
+					count += Enqueue(rows.ToArray());
 				}
 
 				return count;
 			}
 			else
 			{
-				return batch.Count() <= 0 ? 0 : AddTasks(batch.ToArray());
+				return batch.Count() <= 0 ? 0 : Enqueue(batch.ToArray());
 			}
 		}
-		private int AddTasks(IAssemblyData[] rows)
+		private int Enqueue(IAssemblyData[] rows)
 		{
 			StringBuilder sb = new StringBuilder();
 			List<SqlParameter> allParams = new List<SqlParameter>();

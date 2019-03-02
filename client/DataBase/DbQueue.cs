@@ -8,9 +8,9 @@ using Tasks;
 
 namespace DataBase
 {
-	public static class DbTaskProvider
+	public class DbQueue : ITaskQueueClient<IAssemblyData>
 	{
-		public static int Save(IEnumerable<IAssemblyData> batch)
+		public int Enqueue(IEnumerable<IAssemblyData> batch)
 		{
 			/*
 			 * https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?view=sql-server-2017
@@ -23,18 +23,18 @@ namespace DataBase
 				int count = 0;
 				foreach (var rows in batch.Batch(batchSize))
 				{
-					count += AddJobs(rows.ToArray());
+					count += Enqueue(rows.ToArray());
 				}
 
 				return count;
 			}
 			else
 			{
-				return batch.Count() <= 0 ? 0 : AddJobs(batch.ToArray());
+				return batch.Count() <= 0 ? 0 : Enqueue(batch.ToArray());
 			}
 		}
 
-		private static int AddJobs(IAssemblyData[] rows)
+		private int Enqueue(IAssemblyData[] rows)
 		{
 			StringBuilder sb = new StringBuilder();
 			List<SqlParameter> allParams = new List<SqlParameter>();

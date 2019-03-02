@@ -28,7 +28,7 @@ namespace ServiceTest
 			ServiceFactory factory = new ServiceFactory(pollInterval, batchSize, onRun, onCancel, onError);
 
 			factory.Service.Start();
-			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
+			Guid[] tasksCreated = factory.Enqueue(tasksToCreate);
 			Assert.AreEqual(tasksToCreate, tasksCreated.Length);
 
 			Thread.Sleep(1000 * 10); //wait all
@@ -58,10 +58,10 @@ namespace ServiceTest
 			// Start for the first time
 			factory.Service.Start();
 
-			factory.AddTasks(5000);
+			factory.Enqueue(5000);
 			// Stoping here
 			factory.Service.Stop();
-			factory.AddTasks(5000);
+			factory.Enqueue(5000);
 			// Start again
 			factory.Service.Start();
 
@@ -85,7 +85,7 @@ namespace ServiceTest
 
 			factory.Service.Start();
 
-			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
+			Guid[] tasksCreated = factory.Enqueue(tasksToCreate);
 
 			Assert.AreEqual(tasksToCreate, tasksCreated.Length);
 
@@ -114,7 +114,7 @@ namespace ServiceTest
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
 			ServiceFactory factory = new ServiceFactory(globalTs, pollInterval, batchSize, onRun, onCancel, onError);
 
-			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);  // takes about 3 seconds to add 10,000 on my laptop
+			Guid[] tasksCreated = factory.Enqueue(tasksToCreate);  // takes about 3 seconds to add 10,000 on my laptop
 			factory.Service.Start();
 			Thread.Sleep(cancelAfterMs + 1000);                     // let it run for wait time to cancell + 1 sec
 
@@ -148,7 +148,7 @@ namespace ServiceTest
 
 			factory.Service.Start();
 
-			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
+			Guid[] tasksCreated = factory.Enqueue(tasksToCreate);
 
 			Thread.Sleep(2000); //wait for batch to start
 
@@ -187,7 +187,7 @@ namespace ServiceTest
 
 			factory.Service.Start();
 
-			Guid[] tasksCreated = factory.AddTasks(tasksToCreate, timeoutms);
+			Guid[] tasksCreated = factory.Enqueue(tasksToCreate, timeoutms);
 
 			Thread.Sleep(2000); //wait for batch to start
 
@@ -225,7 +225,7 @@ namespace ServiceTest
 
 			factory.Service.Start();
 
-			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
+			Guid[] tasksCreated = factory.Enqueue(tasksToCreate);
 
 			Thread.Sleep(1000 * 10); //wait for batch to start
 

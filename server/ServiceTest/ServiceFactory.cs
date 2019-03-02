@@ -35,7 +35,7 @@ namespace ServiceTest
 
 		public ServiceFactory(CancellationTokenSource ts, Action<FinishResult> onJobCompleted, int pollInterval, int batchSize, Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
 		{
-			this.Provider = new TaskProviderMock(null, onJobCompleted, null, null);
+			this.Provider = new TestQueue(null, onJobCompleted, null, null);
 			this.PollInterval = pollInterval;
 			this.BatchSize = batchSize;
 			this.TokenSource = ts;
@@ -55,13 +55,13 @@ namespace ServiceTest
 		public string InstanceName = Environment.MachineName;
 		public int DefaultA = 1;
 		public int DefaultB = 2;
-		public TaskProviderMock Provider { get; private set; }
+		public TestQueue Provider { get; private set; }
 		Func<int, int, int> sum = (a, b) => a + b;
 
-		public Guid[] AddTasks(int count, int itemsTimoutMs = -1)
+		public Guid[] Enqueue(int count, int itemsTimoutMs = -1)
 		{
 			IEnumerable<IAssemblyData> tasks = TaskFactory.Create(Enumerable.Repeat(sum, count), Enumerable.Repeat(new int[] { this.DefaultA, this.DefaultB }, count), itemsTimoutMs);
-			this.Service.AddJobs(tasks);
+			this.Service.Enqueue(tasks);
 			return (from t in tasks select t.Id).ToArray();
 		}
 	}

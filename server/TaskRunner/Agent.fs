@@ -16,7 +16,7 @@ module Agent =
     type InitData<'input, 'output> = {
         Task: ITask<'input, 'output>;
         GlobalToken: CancellationToken;
-        Provider: ITaskProvider<'input, 'output>;
+        Provider: ITaskQueue<'input, 'output>;
         PollInterval: int;
         BatchSize: int;
         InstanceId: Guid;
@@ -54,9 +54,9 @@ module Agent =
             async {
                 let! channel = inbox.Receive();
 
-                let list = InitData.Provider.GetNextBatch(InitData.BatchSize);
+                let list = InitData.Provider.Dequeue(InitData.BatchSize);
                 let ids = list |> Seq.map(fun it -> it.Id)
-                let count = InitData.Provider.StartBatch(ids, InitData.InstanceName, InitData.InstanceId)
+                let count = InitData.Provider.Start(ids, InitData.InstanceName, InitData.InstanceId)
 
                 match count with
                 | 0 ->
@@ -105,5 +105,5 @@ module Agent =
                 InitData.Listener.WriteLine(printf "[%s] Stoping " (DateTime.Now.ToLongTimeString()))
             | _ -> () // do nothing
 
-        member this.AddJobs jobs =
-            InitData.Provider.AddTasks(jobs)
+        member this.Enqueue jobs =
+            InitData.Provider.Enqueue(jobs)

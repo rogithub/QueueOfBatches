@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace ServiceTest
 {
-	public class TaskProviderMock : ITaskProvider<IAssemblyData, FinishResult>
+	public class TestQueue : ITaskQueue<IAssemblyData, FinishResult>
 	{
 		private Action<IEnumerable<IAssemblyData>> OnJobsAdded;
 		private Action<FinishResult> OnJobCompleted;
@@ -18,7 +18,7 @@ namespace ServiceTest
 		public ConcurrentQueue<IEnumerable<IAssemblyData>> Batches { get; }
 		public int BatchIndex { get; set; }
 
-		public TaskProviderMock(
+		public TestQueue(
 			Action<IEnumerable<IAssemblyData>> onJobsAdded = null,
 			Action<FinishResult> onJobCompleted = null,
 			Action<int> onGetNextBatch = null,
@@ -32,7 +32,7 @@ namespace ServiceTest
 			this.OnBatchStarted = onBatchStarted;
 		}
 
-		public int AddTasks(IEnumerable<IAssemblyData> jobs)
+		public int Enqueue(IEnumerable<IAssemblyData> jobs)
 		{
 			this.Batches.Enqueue(jobs);
 
@@ -49,7 +49,7 @@ namespace ServiceTest
 			return 1;
 		}
 
-		public IEnumerable<IAssemblyData> GetNextBatch(int size)
+		public IEnumerable<IAssemblyData> Dequeue(int size)
 		{
 			IEnumerable<IAssemblyData> data = new IAssemblyData[] { };
 
@@ -64,7 +64,7 @@ namespace ServiceTest
 			}
 		}
 
-		public int StartBatch(IEnumerable<Guid> ids, string machineName, Guid instanceId)
+		public int Start(IEnumerable<Guid> ids, string machineName, Guid instanceId)
 		{
 			Func<Guid, FinishResult, FinishResult> fn = (key, v) => { return new FinishResult() { Id = v.Id, Status = FinishStatus.New }; };
 

@@ -31,6 +31,7 @@ namespace Console
 
 		static void Main(string[] args)
 		{
+			DbQueue queue = new DbQueue();
 			bool continueRunning = true;
 			while (continueRunning)
 			{
@@ -40,7 +41,7 @@ namespace Console
 				continueRunning = int.TryParse(value, out itemsToCreate);
 				if (continueRunning)
 				{
-					DbTaskProvider.Save(CreateFile(itemsToCreate).ToArray());
+					queue.Enqueue(CreateFile(itemsToCreate).ToArray());
 					System.Console.WriteLine("Created: {0}", itemsToCreate);
 				}
 			}
