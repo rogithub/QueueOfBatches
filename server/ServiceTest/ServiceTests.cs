@@ -88,5 +88,40 @@ namespace ServiceTest
 
 			Assert.AreEqual(0, counter);
 		}
+
+		[TestMethod]
+		public void CanceledAfterStart()
+		{
+			int counter = 0; int pollInterval = 0; int batchSize = 10000;
+			int tasksToCreate = 10000;
+
+			Action<FinishResult> onJobCompleted = null;
+			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) =>
+			{
+				Assert.IsNotNull(e);
+				Assert.IsNotNull(f.Exception);
+				Assert.AreEqual(FinishStatus.Canceled, f.Status);
+				Assert.IsNull(f.Result);
+				Assert.AreEqual(d.Id, f.Id);
+				Interlocked.Increment(ref counter);
+			};
+			Action<FinishResult, IAssemblyData> onSuccess = (r, d) =>
+			{
+				Thread.Sleep(1000 * 60 * 60); //wait one hour for cancelation
+			};
+			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
+			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, onSuccess, onCancel, onError);
+
+			factory.Service.Start();
+
+			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
+
+			Thread.Sleep(1000); //wait for batch to start
+			factory.TokenSource.Cancel();
+
+			Assert.AreEqual(tasksToCreate, tasksCreated.Length);
+
+			Assert.AreEqual(tasksToCreate, counter);
+		}
 	}
 }
