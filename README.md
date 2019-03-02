@@ -1,5 +1,5 @@
 # FeedAgent
-This is the implementation of a client/server model for processing tasks in multithreaded batches.
+This is the implementation of a client/server model for processing generic tasks in multithreaded batches.
 
 It is implemented using .Net, and it is divided into two Visual Studio solutions:
   - /client/Client.sln
@@ -12,7 +12,7 @@ It creates an executable console application that allows user to insert sample t
 It contains a console application that reads and executes tasks in multithreaded batches from the database (other sources are also possible described later on ITaskProvider topic).
 
 ## Tasks Components
-This is completly generic, here are the main components.
+Here are the main components.
 
   - TaskRunner. It is an Fsharp wrapper around MailboxProcessor class that is the core part of the server. It takes tasks in the form of ITask interface and executes them in multithreaded batches.
   - ITask. It consists of three methods Run, OnError, OnCancel. Run is the code that will be executed by TaskRunner, OnError and OnCancel will be called if required.
