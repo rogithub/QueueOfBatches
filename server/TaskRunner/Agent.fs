@@ -51,27 +51,25 @@ module Agent =
 
 
         member private this.FeedSource = MailboxProcessor<AsyncReplyChannel<_>>.Start((fun inbox ->
-            let rec loop n =
-                async {
-                    let! channel = inbox.Receive();
+            async {
+                let! channel = inbox.Receive();
 
-                    let list = InitData.Provider.GetNextBatch(InitData.BatchSize);
-                    let ids = list |> Seq.map(fun it -> it.Id)
-                    let count = InitData.Provider.StartBatch(ids, InitData.InstanceName, InitData.InstanceId)
+                let list = InitData.Provider.GetNextBatch(InitData.BatchSize);
+                let ids = list |> Seq.map(fun it -> it.Id)
+                let count = InitData.Provider.StartBatch(ids, InitData.InstanceName, InitData.InstanceId)
 
-                    match count with
-                    | 0 ->
-                        do! Async.Sleep InitData.PollInterval
-                        InitData.Listener.WriteLine(printf "round %d at %s" n (DateTime.Now.ToLongTimeString()))
-                    | _ ->
-                        InitData.Listener.WriteLine(printf "round %d at %s processed %d" n (DateTime.Now.ToLongTimeString()) count)
+                match count with
+                | 0 ->
+                    do! Async.Sleep InitData.PollInterval
+                    InitData.Listener.WriteLine(printf "tick %s" (DateTime.Now.ToLongTimeString()))
+                | _ ->
+                    InitData.Listener.WriteLine(printf "tick %s processed %d" (DateTime.Now.ToLongTimeString()) count)
 
-                    list |> Seq.iter(this.Process)
+                list |> Seq.iter(this.Process)
 
-                    channel.Reply()
-                    do! loop (n + 1)
-                }
-            loop (0)), InitData.Token)
+                channel.Reply()
+
+            }), InitData.Token)
 
         member private this.Starter () =
             let messageAsync = this.FeedSource.PostAndAsyncReply((fun replyChannel -> replyChannel));
