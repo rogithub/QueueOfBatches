@@ -6,7 +6,7 @@ namespace Tasks
 {
 	public class AssemblyTask : ITask<IAssemblyData, FinishResult>
 	{
-		public FinishResult Run(IAssemblyData msg, CancellationToken token)
+		public FinishResult Run(IAssemblyData msg, CancellationTokenSource source)
 		{
 			var t = msg.Assembly.GetType(msg.FullyQualifiedName);
 			var o = Activator.CreateInstance(t, msg.ConstructorParameters);

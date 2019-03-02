@@ -69,7 +69,7 @@ namespace ServiceTest
 
 			Action<FinishResult> onJobCompleted = (r) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
-			Action<FinishResult, IAssemblyData> onRun = (r, d) => Interlocked.Increment(ref counter);
+			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
 			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, onRun, onCancel, onError);
 
@@ -85,7 +85,7 @@ namespace ServiceTest
 		}
 
 		[TestMethod]
-		public void CanceledAfterStart()
+		public void CancellAtItemLevel()
 		{
 			int counter = 0; int pollInterval = 0; int batchSize = 10000;
 			int tasksToCreate = 10000;
@@ -100,9 +100,9 @@ namespace ServiceTest
 				Assert.AreEqual(d.Id, f.Id);
 				Interlocked.Increment(ref counter);
 			};
-			Action<FinishResult, IAssemblyData> onRun = (r, d) =>
+			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
-				Thread.Sleep(1000 * 60 * 60); //wait one hour for cancelation
+				ts.Cancel();
 			};
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
 			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, onRun, onCancel, onError);
@@ -112,7 +112,6 @@ namespace ServiceTest
 			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
 
 			Thread.Sleep(2000); //wait for batch to start
-			factory.TokenSource.Cancel();
 
 			Assert.AreEqual(tasksToCreate, tasksCreated.Length);
 
@@ -128,7 +127,7 @@ namespace ServiceTest
 
 			Action<FinishResult> onJobCompleted = null;
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
-			Action<FinishResult, IAssemblyData> onRun = (r, d) =>
+			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
 				Thread.Sleep(1000 * 60 * 60); //wait one hour for cancelation
 			};
@@ -162,7 +161,7 @@ namespace ServiceTest
 
 			Action<FinishResult> onJobCompleted = null;
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
-			Action<FinishResult, IAssemblyData> onRun = (r, d) =>
+			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
 				throw new Exception("Application Exception");
 			};

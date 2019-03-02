@@ -12,7 +12,7 @@ module Agent =
         | Running
         | Stoped
 
-    type Message<'input, 'output> = CancellationToken * 'input * AsyncReplyChannel<'output>
+    type Message<'input, 'output> = CancellationTokenSource * 'input * AsyncReplyChannel<'output>
     type InitData<'input, 'output> = {
         Task: ITask<'input, 'output>;
         Token: CancellationToken;
@@ -30,9 +30,9 @@ module Agent =
         member private this.TaskRunner = MailboxProcessor<Message<'input, 'output>>.Start((fun inbox ->
             let rec loop() =
                 async {
-                    let! (token, input, channel) = inbox.Receive();
+                    let! (cancels, input, channel) = inbox.Receive();
                     try
-                        channel.Reply(initData.Task.Run(input, token));
+                        channel.Reply(initData.Task.Run(input, cancels));
                         do! loop()
                     with
                     | ex ->
@@ -43,7 +43,7 @@ module Agent =
 
         member private this.Process data =
             let _itSource = new CancellationTokenSource();
-            let messageAsync = this.TaskRunner.PostAndAsyncReply((fun replyChannel -> _itSource.Token, data, replyChannel), data.TimeoutMilliseconds);
+            let messageAsync = this.TaskRunner.PostAndAsyncReply((fun replyChannel -> _itSource, data, replyChannel), data.TimeoutMilliseconds);
             Async.StartWithContinuations(messageAsync,
                 (fun  result -> InitData.Provider.CompleteTask(result) |> ignore),
                 (fun   error -> InitData.Provider.CompleteTask(initData.Task.OnError(data, error)) |> ignore),

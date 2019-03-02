@@ -11,7 +11,7 @@ namespace ServiceTest
 {
 	public class ServiceFactory
 	{
-		public ServiceFactory(Action<FinishResult> onJobCompleted, int pollInterval, int batchSize, Action<FinishResult, IAssemblyData> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
+		public ServiceFactory(Action<FinishResult> onJobCompleted, int pollInterval, int batchSize, Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
 		{
 			this.Provider = new TaskProviderMock(null, onJobCompleted, null, null);
 			this.PollInterval = pollInterval;
@@ -33,7 +33,7 @@ namespace ServiceTest
 		public int DefaultB = 2;
 		public TaskProviderMock Provider { get; private set; }
 		Func<int, int, int> sum = (a, b) => a + b;
-		public static Action<FinishResult, IAssemblyData> onRunDefaultTests = (r, d) =>
+		public static Action<FinishResult, IAssemblyData, CancellationTokenSource> onRunDefaultTests = (r, d, ts) =>
 		{
 			Assert.IsNotNull(d);
 			Assert.IsNull(r.Exception);
