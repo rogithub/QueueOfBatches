@@ -15,7 +15,7 @@ module Agent =
     type Message<'input, 'output> = CancellationTokenSource * 'input * AsyncReplyChannel<'output>
     type InitData<'input, 'output> = {
         Task: ITask<'input, 'output>;
-        Token: CancellationToken;
+        GlobalToken: CancellationToken;
         Provider: ITaskProvider<'input, 'output>;
         PollInterval: int;
         BatchSize: int;
@@ -39,7 +39,7 @@ module Agent =
                         channel.Reply(initData.Task.OnError(input, ex));
                         do! loop()
                 }
-            loop()), InitData.Token)
+            loop()), InitData.GlobalToken)
 
         member private this.Process data =
             let _itSource = new CancellationTokenSource();
@@ -69,7 +69,7 @@ module Agent =
 
                 channel.Reply()
 
-            }), InitData.Token)
+            }), InitData.GlobalToken)
 
         member private this.Starter () =
             let messageAsync = this.FeedSource.PostAndAsyncReply((fun replyChannel -> replyChannel));
