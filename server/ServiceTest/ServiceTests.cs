@@ -116,7 +116,7 @@ namespace ServiceTest
 
 			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);
 
-			Thread.Sleep(1000); //wait for batch to start
+			Thread.Sleep(2000); //wait for batch to start
 			factory.TokenSource.Cancel();
 
 			Assert.AreEqual(tasksToCreate, tasksCreated.Length);
