@@ -9,12 +9,12 @@ It is implemented using .Net, and it is divided into two Visual Studio solutions
 It creates an executable console application that allows user to insert sample tasks to be executed later for the server application. Tasks will be enqueued in an existing table (see /DBStructure folder).
 
 ### Server Part
-It contains a console application that reads and executes tasks in multithreaded batches from the database (other sources are also possible described later on ITaskQueue topic).
+It contains a console application that dequeues and executes tasks concurrently from the database (other sources are also possible described later on ITaskQueue topic).
 
 ## Tasks Components
 Here are the main components.
 
-  - TaskRunner. It is an Fsharp wrapper around MailboxProcessor class that is the core part of the server. It takes tasks in the form of ITask interface and executes them in multithreaded batches. 
+  - TaskRunner. It is an Fsharp wrapper around MailboxProcessor class that is the core part of the Server. It takes tasks in the form of ITask interface and executes them concurrently. 
   
     **Important:** Only one instance of the Server per ITaskQueue can run at a given time. You can run multiple instances as long as they have different queues. Client app on the other hand can have as many instances as you want.
   
