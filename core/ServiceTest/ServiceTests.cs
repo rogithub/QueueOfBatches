@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ServiceTest

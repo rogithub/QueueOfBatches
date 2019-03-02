@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using TaskRunner;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Tasks;
 
 namespace ServiceTest
 {
