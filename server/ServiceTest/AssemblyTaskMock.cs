@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace ServiceTest
 {
@@ -19,9 +20,9 @@ namespace ServiceTest
 			this.OnErrorExecuted = onError;
 		}
 
-		public new FinishResult Run(IAssemblyData input)
+		public new FinishResult Run(IAssemblyData input, CancellationToken token)
 		{
-			var result = base.Run(input);
+			var result = base.Run(input, token);
 			if (this.OnRunExecuted != null) this.OnRunExecuted(result, input);
 			return result;
 		}
