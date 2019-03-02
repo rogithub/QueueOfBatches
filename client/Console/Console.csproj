@@ -51,13 +51,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\core\TasksInterfaces\TasksInterfaces.csproj">
+      <Project>{6bd0e90a-c936-4b1d-9390-64eb66e8ee96}</Project>
+      <Name>TasksInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\shared\DataBase\DataBase.csproj">
+      <Project>{d8985277-3605-44bb-9d64-2629b6dbd24c}</Project>
+      <Name>DataBase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\shared\Tasks\Tasks.csproj">
       <Project>{0adad786-d9b8-42d2-a38d-3af78f00a558}</Project>
       <Name>Tasks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DataBase\DataBase.csproj">
-      <Project>{d8985277-3605-44bb-9d64-2629b6dbd24c}</Project>
-      <Name>DataBase</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,7 +2,7 @@ namespace TaskRunner
 
 module Agent =
 
-    open Tasks
+    open TasksInterfaces
     open System
     open System.Threading
     open System.Diagnostics

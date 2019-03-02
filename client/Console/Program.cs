@@ -11,8 +11,6 @@ namespace Console
 	{
 		public static IEnumerable<IAssemblyData> CreateFile(int count)
 		{
-
-
 			string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 			string path = Path.Combine(desktop, "test");
 

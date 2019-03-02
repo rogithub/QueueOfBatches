@@ -1,10 +1,10 @@
-﻿
-using DataBase;
+﻿using DataBase;
 using TaskRunner;
 using Tasks;
 using System;
 using System.Diagnostics;
 using System.Threading;
+using TasksInterfaces;
 
 namespace Console
 {

@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="AssemblySerializer.cs" />
     <Compile Include="Db.cs" />
     <Compile Include="DbQueue.cs" />
     <Compile Include="Conversions.cs" />
@@ -50,6 +51,10 @@
     <Compile Include="Serializer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\core\TasksInterfaces\TasksInterfaces.csproj">
+      <Project>{6BD0E90A-C936-4B1D-9390-64EB66E8EE96}</Project>
+      <Name>TasksInterfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\shared\Tasks\Tasks.csproj">
       <Project>{0adad786-d9b8-42d2-a38d-3af78f00a558}</Project>
       <Name>Tasks</Name>

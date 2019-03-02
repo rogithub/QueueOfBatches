@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Tasks
+namespace TasksInterfaces
 {
 	public interface ITask<input, output>
 	{

@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\shared\Tasks\Tasks.csproj" />
+    <ProjectReference Include="..\TasksInterfaces\TasksInterfaces.csproj" />
   </ItemGroup>
 
 </Project>

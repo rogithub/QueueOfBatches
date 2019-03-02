@@ -45,11 +45,14 @@
     <Compile Include="FinishResult.cs" />
     <Compile Include="FinishStatusEnum.cs" />
     <Compile Include="IAssemblyData.cs" />
-    <Compile Include="ITask.cs" />
-    <Compile Include="ITaskInput.cs" />
-    <Compile Include="ITaskQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AssemblyTask.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\TasksInterfaces\TasksInterfaces.csproj">
+      <Project>{6bd0e90a-c936-4b1d-9390-64eb66e8ee96}</Project>
+      <Name>TasksInterfaces</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

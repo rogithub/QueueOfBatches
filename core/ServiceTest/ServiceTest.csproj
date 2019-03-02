@@ -69,6 +69,10 @@
       <Project>{7a9f0e94-ecca-443d-ab80-e776b7b34fe2}</Project>
       <Name>TaskRunner</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TasksInterfaces\TasksInterfaces.csproj">
+      <Project>{6bd0e90a-c936-4b1d-9390-64eb66e8ee96}</Project>
+      <Name>TasksInterfaces</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

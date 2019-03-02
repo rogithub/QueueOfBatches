@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Text;
+using TasksInterfaces;
 
 namespace DataBase
 {
@@ -25,7 +26,7 @@ namespace DataBase
 				{
 					list.Add(new AssemblyData()
 					{
-						Assembly = GetAssemblyFromByteArray(dr["F_ASSEMBLY"]),
+						Assembly = AssemblySerializer.GetAssemblyFromByteArray(dr["F_ASSEMBLY"]),
 						MethodParametersTypes = GetCastedByteArray<Type[]>(dr["F_METHOD_PARAM_TYPES"]),
 						ConstructorParameters = GetCastedXml<object[]>(dr["F_CONSTRUCTOR_PARAMETERS"]),
 						MethodParameters = GetCastedXml<object[]>(dr["F_METHOD_PARAMETERS"]),
@@ -92,7 +93,7 @@ namespace DataBase
 				sb.AppendFormat(text, i);
 				allParams.Add(Db.GetParam(string.Format("@guid{0}", i), SqlDbType.UniqueIdentifier, rows[i].Id));
 				allParams.Add(Db.GetParam(string.Format("@timeoutms{0}", i), SqlDbType.Int, rows[i].TimeoutMilliseconds <= 0 ? -1 : rows[i].TimeoutMilliseconds));
-				allParams.Add(Db.GetParam(string.Format("@assembly{0}", i), SqlDbType.Binary, Serializer.Serialize(rows[i].Assembly)));
+				allParams.Add(Db.GetParam(string.Format("@assembly{0}", i), SqlDbType.Binary, AssemblySerializer.SerializeAssembly()));
 				allParams.Add(Db.GetParam(string.Format("@paramTypes{0}", i), SqlDbType.Binary, Serializer.Serialize(rows[i].MethodParametersTypes)));
 				allParams.Add(Db.GetParam(string.Format("@consParams{0}", i), SqlDbType.Xml, Serializer.XmlSerialize(rows[i].ConstructorParameters)));
 				allParams.Add(Db.GetParam(string.Format("@methodParams{0}", i), SqlDbType.Xml, Serializer.XmlSerialize(rows[i].MethodParameters)));
@@ -140,12 +141,6 @@ namespace DataBase
 		{
 			byte[] arr = Conversions.GetCastValue<byte[]>(v);
 			return Serializer.Deserialize<T>(arr);
-		}
-
-		private static Assembly GetAssemblyFromByteArray(object v)
-		{
-			byte[] arr = Conversions.GetCastValue<byte[]>(v);
-			return Assembly.Load(arr);
 		}
 	}
 }
