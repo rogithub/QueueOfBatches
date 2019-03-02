@@ -11,16 +11,40 @@ namespace ServiceTest
 {
 	public class ServiceFactory
 	{
+		public ServiceFactory(int pollInterval, int batchSize, Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
+			: this(new CancellationTokenSource(), null, pollInterval, batchSize, onRun, onCancel, onError)
+
+		{
+
+		}
+
 		public ServiceFactory(Action<FinishResult> onJobCompleted, int pollInterval, int batchSize, Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
+			: this(new CancellationTokenSource(), onJobCompleted, pollInterval, batchSize, onRun, onCancel, onError)
+
+		{
+
+		}
+
+		public ServiceFactory(CancellationTokenSource ts, int pollInterval, int batchSize, Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
+			: this(ts, null, pollInterval, batchSize, onRun, onCancel, onError)
+
+		{
+
+		}
+
+
+		public ServiceFactory(CancellationTokenSource ts, Action<FinishResult> onJobCompleted, int pollInterval, int batchSize, Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = null, Action<FinishResult, IAssemblyData, Exception> onCancel = null, Action<FinishResult, IAssemblyData, Exception> onError = null)
 		{
 			this.Provider = new TaskProviderMock(null, onJobCompleted, null, null);
 			this.PollInterval = pollInterval;
 			this.BatchSize = batchSize;
-			this.TokenSource = new CancellationTokenSource();
+			this.TokenSource = ts;
 			var task = new AssemblyTaskMock(onRun, onCancel, onError);
 			this.ServiceData = new Agent.InitData<IAssemblyData, FinishResult>(task, this.TokenSource.Token, this.Provider, this.PollInterval, this.BatchSize, this.InstanceId, this.InstanceName, this.Listener);
 			this.Service = new Agent.Service<IAssemblyData, FinishResult>(this.ServiceData);
 		}
+
+
 		public Agent.InitData<IAssemblyData, FinishResult> ServiceData { get; }
 		public Agent.Service<IAssemblyData, FinishResult> Service { get; }
 		public CancellationTokenSource TokenSource { get; }

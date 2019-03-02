@@ -85,12 +85,37 @@ namespace ServiceTest
 		}
 
 		[TestMethod]
+		public void GlobalCancel()
+		{
+			int counter = 0; int pollInterval = 0; int batchSize = 10;
+			int tasksToCreate = 10000;
+			int cancelAfterMs = 5000;
+			CancellationTokenSource globalTs = new CancellationTokenSource(cancelAfterMs);
+
+			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
+			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
+			{
+				Interlocked.Increment(ref counter);
+				Thread.Sleep(1000 * 60 * 60);
+			};
+			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
+			ServiceFactory factory = new ServiceFactory(globalTs, pollInterval, batchSize, onRun, onCancel, onError);
+
+			Guid[] tasksCreated = factory.AddTasks(tasksToCreate);  // takes about 3 seconds to add 10,000 on my laptop
+			factory.Service.Start();                                // give it about 2 secons to satrt tasks
+			Thread.Sleep(cancelAfterMs + 1000);                     // wait time to cancell + 1 sec
+
+			Assert.AreEqual(tasksToCreate, tasksCreated.Length);
+
+			Assert.IsTrue(counter > 0);                             // at least some should be started by now
+		}
+
+		[TestMethod]
 		public void CancellAtItemLevel()
 		{
 			int counter = 0; int pollInterval = 0; int batchSize = 10000;
 			int tasksToCreate = 10000;
 
-			Action<FinishResult> onJobCompleted = null;
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) =>
 			{
 				Assert.IsNotNull(e);
@@ -105,7 +130,7 @@ namespace ServiceTest
 				ts.Cancel();
 			};
 			Action<FinishResult, IAssemblyData, Exception> onError = (f, d, e) => Interlocked.Increment(ref counter);
-			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, onRun, onCancel, onError);
+			ServiceFactory factory = new ServiceFactory(pollInterval, batchSize, onRun, onCancel, onError);
 
 			factory.Service.Start();
 
@@ -125,7 +150,6 @@ namespace ServiceTest
 			int tasksToCreate = 10000;
 			int timeoutms = 10;
 
-			Action<FinishResult> onJobCompleted = null;
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
@@ -140,7 +164,7 @@ namespace ServiceTest
 				Assert.AreEqual(d.Id, f.Id);
 				Interlocked.Increment(ref counter);
 			};
-			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, onRun, onCancel, onError);
+			ServiceFactory factory = new ServiceFactory(pollInterval, batchSize, onRun, onCancel, onError);
 
 			factory.Service.Start();
 
@@ -159,7 +183,6 @@ namespace ServiceTest
 			int counter = 0; int pollInterval = 0; int batchSize = 10;
 			int tasksToCreate = 10;
 
-			Action<FinishResult> onJobCompleted = null;
 			Action<FinishResult, IAssemblyData, Exception> onCancel = (f, d, e) => Interlocked.Increment(ref counter);
 			Action<FinishResult, IAssemblyData, CancellationTokenSource> onRun = (r, d, ts) =>
 			{
@@ -174,7 +197,7 @@ namespace ServiceTest
 				Assert.AreEqual(d.Id, f.Id);
 				Interlocked.Increment(ref counter);
 			};
-			ServiceFactory factory = new ServiceFactory(onJobCompleted, pollInterval, batchSize, onRun, onCancel, onError);
+			ServiceFactory factory = new ServiceFactory(pollInterval, batchSize, onRun, onCancel, onError);
 
 			factory.Service.Start();
 
