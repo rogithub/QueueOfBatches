@@ -25,7 +25,7 @@ namespace DataBase
 				{
 					list.Add(new AssemblyData()
 					{
-						Assembly = GetCastedByteArray<Assembly>(dr["F_ASSEMBLY"]),
+						Assembly = GetAssemblyFromByteArray(dr["F_ASSEMBLY"]),
 						MethodParametersTypes = GetCastedByteArray<Type[]>(dr["F_METHOD_PARAM_TYPES"]),
 						ConstructorParameters = GetCastedXml<object[]>(dr["F_CONSTRUCTOR_PARAMETERS"]),
 						MethodParameters = GetCastedXml<object[]>(dr["F_METHOD_PARAMETERS"]),
@@ -140,6 +140,12 @@ namespace DataBase
 		{
 			byte[] arr = Conversions.GetCastValue<byte[]>(v);
 			return Serializer.Deserialize<T>(arr);
+		}
+
+		private static Assembly GetAssemblyFromByteArray(object v)
+		{
+			byte[] arr = Conversions.GetCastValue<byte[]>(v);
+			return Assembly.Load(arr);
 		}
 	}
 }
