@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using TasksInterfaces;
+using System.Linq;
 
 namespace Console
 {
@@ -13,6 +14,7 @@ namespace Console
 
 		static void Main(string[] args)
 		{
+
 			ConsoleTraceListener listener = new ConsoleTraceListener();
 			ITaskQueue<IAssemblyData, FinishResult> provider = new DbQueue();
 			var c = new CancellationTokenSource();

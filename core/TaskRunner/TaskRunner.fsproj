@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Task.fs" />
+    <Compile Include="PoolTask.fs" />
     <Compile Include="Pool.fs" />
     <Compile Include="Agent.fs" />
   </ItemGroup>

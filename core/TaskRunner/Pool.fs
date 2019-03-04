@@ -3,12 +3,13 @@ open System
 open System.Threading
 open System.Diagnostics
 
-type Message<'input, 'output> = CancellationToken * 'input * AsyncReplyChannel<'output>
+
+type Message<'input, 'output> = CancellationToken * 'input * AsyncReplyChannel<Result<'output>>
 type InitData<'input, 'output> = {
     GlobalToken: CancellationToken;
     Listener: TraceListener; }
 
-type Pool<'input, 'output> (queueToken: CancellationToken, task: Task<'input, 'output>) =
+type Pool<'input, 'output> (queueToken: CancellationToken, task: PoolTask<'input, 'output>) =
     let GlobalToken = queueToken;
     let Task = task
 
@@ -17,20 +18,46 @@ type Pool<'input, 'output> (queueToken: CancellationToken, task: Task<'input, 'o
             async {
                 let! (source, input, channel) = inbox.Receive();
                 try
-                    channel.Reply(Task.Execute.Invoke(input, source));
+                    let x = Task.Execute.Invoke(input, source)
+                    channel.Reply(Success x)
                     do! loop()
                 with
+                | :? OperationCanceledException as ex ->
+                    Task.Cancel.Invoke(ex);
+                    channel.Reply(Cancel ex)
+                    do! loop()
                 | ex ->
-                    Task.Error.Invoke(input, ex);
+                    Task.Error.Invoke(ex);
+                    channel.Reply(Error ex)
                     do! loop()
             }
         loop()), GlobalToken)
 
-    member this.Enqueue input timeoutms =
+    member this.EnqueueTimeout input timeoutms =
         let _itSource = new CancellationTokenSource();
         let messageAsync = this.TaskRunner.PostAndAsyncReply((fun replyChannel -> _itSource.Token, input, replyChannel), timeoutms);
         Async.StartWithContinuations(messageAsync,
-            (fun  result -> Task.Complete.Invoke(result) |> ignore),
-            (fun   error -> Task.Error.Invoke(input, error) |> ignore),
-            (fun     can -> Task.Cancel.Invoke(input, can) |> ignore), _itSource.Token)
+            (fun  success ->
+                match success with
+                | Success r -> Task.Complete.Invoke(r)
+                | Error err -> Task.Error.Invoke(err)
+                | Cancel can -> Task.Cancel.Invoke(can)
+            ),
+            (fun   error  -> Task.Error.Invoke(error) |> ignore),
+            (fun     can  -> Task.Cancel.Invoke(can) |> ignore), _itSource.Token)
         messageAsync
+
+    member this.Enqueue input =
+        this.EnqueueTimeout input -1 // infinite timeout
+
+    member this.EnqueueBatchTimeout list batch timeoutms =
+        let _itSource = new CancellationTokenSource();
+        let items = list |> Seq.map(fun it -> this.EnqueueTimeout it timeoutms)
+        let arr = Async.Parallel items
+        Async.StartWithContinuations(arr,
+            (fun  result -> batch.Complete.Invoke(result) |> ignore),
+            (fun     err -> batch.Error.Invoke(err) |> ignore),
+            (fun     can -> batch.Cancel.Invoke(can) |> ignore), _itSource.Token)
+
+    member this.EnqueueBatch list batch =
+        this.EnqueueBatchTimeout list batch -1
