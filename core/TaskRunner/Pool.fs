@@ -33,3 +33,4 @@ type Pool<'input, 'output> (queueToken: CancellationToken, task: Task<'input, 'o
             (fun  result -> Task.Complete.Invoke(result) |> ignore),
             (fun   error -> Task.Error.Invoke(input, error) |> ignore),
             (fun     can -> Task.Cancel.Invoke(input, can) |> ignore), _itSource.Token)
+        messageAsync
